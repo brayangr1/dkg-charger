@@ -1,0 +1,165 @@
+.payment-receipt-screen {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.receipt-header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.receipt-header h1 {
+    margin: var(--spacing-md) 0 0;
+    font-size: 28px;
+}
+
+.receipt-content {
+    padding: var(--spacing-lg);
+}
+
+/* Logo y encabezado del recibo */
+.receipt-logo-section {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.company-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 var(--spacing-xs);
+}
+
+.receipt-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Sección de factura */
+.invoice-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Secciones */
+.receipt-section {
+    margin-bottom: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 var(--spacing-md);
+}
+
+/* Filas de detalles */
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+}
+
+.detail-row .label {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.detail-row .value {
+    color: var(--color-text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+}
+
+/* Fila de monto */
+.amount-row .label {
+    font-weight: 600;
+}
+
+.amount-value {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: var(--color-success);
+}
+
+/* Badge de estado */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+
+/* Sección de agradecimiento */
+.thank-you-section {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.thank-you-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 var(--spacing-xs);
+}
+
+.thank-you-subtext {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Botones de acción */
+.receipt-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+/* Dark mode */
+[data-theme="dark"] .receipt-logo-section {
+    border-bottom-color: var(--color-gray-700);
+}
+
+[data-theme="dark"] .receipt-section {
+    border-top-color: var(--color-gray-700);
+}
+
+[data-theme="dark"] .thank-you-section {
+    border-top-color: var(--color-gray-700);
+}
+
+@media (max-width: 768px) {
+    .receipt-content {
+        padding: var(--spacing-md);
+    }
+    
+    .company-name {
+        font-size: 16px;
+    }
+    
+    .amount-value {
+        font-size: 16px !important;
+        font-size: 36px;
+    }
+
+    .status-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+    }
+}

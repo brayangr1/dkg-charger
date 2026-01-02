@@ -1,0 +1,1619 @@
+/*M!999999\- enable the sandbox mode */ 
+-- MariaDB dump 10.19  Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
+--
+-- Host: localhost    Database: charger
+-- ------------------------------------------------------
+-- Server version	10.11.14-MariaDB-0+deb12u2
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `authorization_cache`
+--
+
+DROP TABLE IF EXISTS `authorization_cache`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `authorization_cache` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_serial` varchar(100) NOT NULL,
+  `id_tag` varchar(255) NOT NULL,
+  `status` enum('Accepted','Blocked','Expired','Invalid','ConcurrentTx') NOT NULL,
+  `expiry_date` datetime DEFAULT NULL,
+  `parent_id_tag` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_charger_tag` (`charger_serial`,`id_tag`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `authorization_cache`
+--
+
+LOCK TABLES `authorization_cache` WRITE;
+/*!40000 ALTER TABLE `authorization_cache` DISABLE KEYS */;
+/*!40000 ALTER TABLE `authorization_cache` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `billing_details`
+--
+
+DROP TABLE IF EXISTS `billing_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `billing_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `company_name` varchar(255) DEFAULT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `cif` varchar(50) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `postal_code` varchar(20) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_billing_user` (`user_id`),
+  CONSTRAINT `billing_details_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `billing_details`
+--
+
+LOCK TABLES `billing_details` WRITE;
+/*!40000 ALTER TABLE `billing_details` DISABLE KEYS */;
+INSERT INTO `billing_details` (`id`, `user_id`, `company_name`, `first_name`, `last_name`, `cif`, `phone`, `address`, `postal_code`, `city`, `country`, `is_default`, `created_at`, `updated_at`) VALUES (1,62,'playa',NULL,NULL,'1565641','2134124213','valencia','4019',NULL,NULL,0,'2025-08-21 10:05:57','2025-12-17 10:27:47'),
+(2,94,'Emulador android',NULL,NULL,'1231313','123456789','avalencia','14226',NULL,NULL,0,'2025-09-04 16:35:25','2025-09-04 16:35:25'),
+(3,98,'uno',NULL,NULL,'1112222','23669955','valencia','46019',NULL,NULL,0,'2025-12-16 16:58:57','2025-12-16 16:58:57');
+/*!40000 ALTER TABLE `billing_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charger_bluetooth_uuids`
+--
+
+DROP TABLE IF EXISTS `charger_bluetooth_uuids`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charger_bluetooth_uuids` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_serial` varchar(255) NOT NULL,
+  `service_uuid` varchar(255) NOT NULL,
+  `characteristic_uuid` varchar(255) NOT NULL,
+  `properties` varchar(100) DEFAULT NULL,
+  `model` varchar(100) DEFAULT NULL,
+  `vendor` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_charger_service_char` (`charger_serial`,`service_uuid`,`characteristic_uuid`),
+  KEY `idx_charger_serial` (`charger_serial`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charger_bluetooth_uuids`
+--
+
+LOCK TABLES `charger_bluetooth_uuids` WRITE;
+/*!40000 ALTER TABLE `charger_bluetooth_uuids` DISABLE KEYS */;
+/*!40000 ALTER TABLE `charger_bluetooth_uuids` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charger_configurations`
+--
+
+DROP TABLE IF EXISTS `charger_configurations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charger_configurations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_serial` varchar(100) NOT NULL,
+  `config_key` varchar(255) NOT NULL,
+  `config_value` text DEFAULT NULL,
+  `readonly` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_charger_config` (`charger_serial`,`config_key`),
+  CONSTRAINT `charger_configurations_ibfk_1` FOREIGN KEY (`charger_serial`) REFERENCES `chargers` (`serial_number`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charger_configurations`
+--
+
+LOCK TABLES `charger_configurations` WRITE;
+/*!40000 ALTER TABLE `charger_configurations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `charger_configurations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charger_logs`
+--
+
+DROP TABLE IF EXISTS `charger_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charger_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `action_type` varchar(100) NOT NULL,
+  `timestamp` datetime NOT NULL DEFAULT current_timestamp(),
+  `raw_data` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `charger_id` (`charger_id`),
+  CONSTRAINT `charger_logs_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charger_logs`
+--
+
+LOCK TABLES `charger_logs` WRITE;
+/*!40000 ALTER TABLE `charger_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `charger_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charger_users`
+--
+
+DROP TABLE IF EXISTS `charger_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charger_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `access_level` enum('owner','admin','user') NOT NULL DEFAULT 'user',
+  `assigned_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `is_blocked` tinyint(1) DEFAULT 0,
+  `alias` varchar(100) DEFAULT NULL,
+  `rate_per_kwh` decimal(10,2) DEFAULT 0.00,
+  `energy_limit` decimal(10,2) DEFAULT NULL,
+  `monthly_energy_used` decimal(10,2) DEFAULT 0.00,
+  `monthly_cost_accumulated` decimal(10,2) DEFAULT 0.00,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `monthly_energy_accumulated` decimal(10,2) DEFAULT 0.00 COMMENT 'Energía acumulada que excedió el límite mensual',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `charger_id` (`charger_id`,`user_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `charger_users_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`),
+  CONSTRAINT `charger_users_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=166 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charger_users`
+--
+
+LOCK TABLES `charger_users` WRITE;
+/*!40000 ALTER TABLE `charger_users` DISABLE KEYS */;
+INSERT INTO `charger_users` (`id`, `charger_id`, `user_id`, `access_level`, `assigned_at`, `is_blocked`, `alias`, `rate_per_kwh`, `energy_limit`, `monthly_energy_used`, `monthly_cost_accumulated`, `created_at`, `monthly_energy_accumulated`) VALUES (164,146,62,'owner','2025-12-16 15:35:04',0,NULL,0.30,NULL,0.00,0.00,'2025-12-16 15:35:04',0.00),
+(165,146,98,'user','2025-12-16 15:59:06',0,'prueba',0.30,100.00,0.00,0.00,'2025-12-16 15:59:06',0.00);
+/*!40000 ALTER TABLE `charger_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `chargers`
+--
+
+DROP TABLE IF EXISTS `chargers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chargers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_number` varchar(100) NOT NULL,
+  `charger_box_serial_number` varchar(100) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `charger_vendor` varchar(255) DEFAULT NULL,
+  `max_power` int(11) NOT NULL,
+  `firmware_version` varchar(50) NOT NULL,
+  `iccid` varchar(50) DEFAULT NULL,
+  `imsi` varchar(50) DEFAULT NULL,
+  `meter_type` varchar(100) DEFAULT NULL,
+  `meter_serial_number` varchar(100) DEFAULT NULL,
+  `mac_address` varchar(50) DEFAULT NULL,
+  `charger_ip` varchar(45) DEFAULT NULL,
+  `owner_id` int(11) DEFAULT NULL,
+  `registered_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `last_updated` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `status` varchar(50) DEFAULT 'offline',
+  `network_status` enum('online','offline') NOT NULL DEFAULT 'offline',
+  `usage_type` enum('payment','home') DEFAULT 'payment',
+  `charging_mode` enum('grid','solar','mixed','surplus') NOT NULL DEFAULT 'grid',
+  `wifi_ssid` varchar(255) DEFAULT NULL,
+  `current_power` decimal(10,2) DEFAULT NULL,
+  `charger_type` enum('dkg','ocpp') NOT NULL DEFAULT 'dkg',
+  `ocpp_id` varchar(100) DEFAULT NULL,
+  `pending_wifi_config` text DEFAULT NULL,
+  `pending_ocpp_config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`pending_ocpp_config`)),
+  `preferred_bluetooth_service` varchar(255) DEFAULT NULL,
+  `preferred_bluetooth_characteristic` varchar(255) DEFAULT NULL,
+  `bluetooth_connected` tinyint(1) DEFAULT 0,
+  `last_bluetooth_connection` datetime DEFAULT NULL,
+  `lighting_config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`lighting_config`)),
+  `lock_methods` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`lock_methods`)),
+  `ocpp_server_id` int(11) DEFAULT NULL,
+  `is_temporary` tinyint(1) DEFAULT 0,
+  `needs_registration` tinyint(1) DEFAULT 0,
+  `device_status` varchar(50) DEFAULT 'Available',
+  `last_status_notification` datetime DEFAULT NULL,
+  `last_error_code` varchar(50) DEFAULT NULL,
+  `auth_enabled` tinyint(1) DEFAULT 0,
+  `last_config_update` datetime DEFAULT NULL,
+  `availability_status` enum('Inoperative','Operative') DEFAULT 'Operative',
+  `last_availability_change` datetime DEFAULT NULL,
+  `diagnostics_status` varchar(50) DEFAULT NULL,
+  `firmware_status` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `serial_number` (`serial_number`),
+  KEY `idx_chargers_owner` (`owner_id`),
+  KEY `ocpp_server_id` (`ocpp_server_id`),
+  KEY `idx_chargers_charger_vendor` (`charger_vendor`),
+  KEY `idx_chargers_charger_box_serial` (`charger_box_serial_number`),
+  KEY `idx_chargers_iccid` (`iccid`),
+  KEY `idx_chargers_charger_ip` (`charger_ip`),
+  CONSTRAINT `chargers_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `chargers_ibfk_2` FOREIGN KEY (`ocpp_server_id`) REFERENCES `ocpp_servers` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chargers`
+--
+
+LOCK TABLES `chargers` WRITE;
+/*!40000 ALTER TABLE `chargers` DISABLE KEYS */;
+INSERT INTO `chargers` (`id`, `serial_number`, `charger_box_serial_number`, `name`, `model`, `charger_vendor`, `max_power`, `firmware_version`, `iccid`, `imsi`, `meter_type`, `meter_serial_number`, `mac_address`, `charger_ip`, `owner_id`, `registered_at`, `last_updated`, `status`, `network_status`, `usage_type`, `charging_mode`, `wifi_ssid`, `current_power`, `charger_type`, `ocpp_id`, `pending_wifi_config`, `pending_ocpp_config`, `preferred_bluetooth_service`, `preferred_bluetooth_characteristic`, `bluetooth_connected`, `last_bluetooth_connection`, `lighting_config`, `lock_methods`, `ocpp_server_id`, `is_temporary`, `needs_registration`, `device_status`, `last_status_notification`, `last_error_code`, `auth_enabled`, `last_config_update`, `availability_status`, `last_availability_change`, `diagnostics_status`, `firmware_status`) VALUES (146,'944067','944067','Cargador 4067','PLP1-0-2-4','Wall Box Chargers',32,'5.16.37',NULL,NULL,'Internal NON compliant',NULL,'','113.203.129.89',62,'2025-12-16 15:35:04','2025-12-17 09:36:09','Available','offline','home','grid',NULL,NULL,'ocpp',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,'offline',NULL,NULL,0,NULL,'Operative',NULL,NULL,NULL);
+/*!40000 ALTER TABLE `chargers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `chargers_ocpp`
+--
+
+DROP TABLE IF EXISTS `chargers_ocpp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chargers_ocpp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_number` varchar(100) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `model` varchar(100) DEFAULT NULL,
+  `max_power` decimal(10,2) DEFAULT NULL,
+  `firmware_version` varchar(50) DEFAULT 'Unknown',
+  `mac_address` varchar(50) DEFAULT NULL,
+  `owner_id` int(11) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `network_status` varchar(50) DEFAULT NULL,
+  `charger_type` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `ocpp_server_id` int(11) DEFAULT NULL,
+  `wifi_ssid` varchar(255) DEFAULT NULL,
+  `usage_type` enum('payment','home') DEFAULT 'payment',
+  `charging_mode` enum('grid','solar','mixed','surplus') NOT NULL DEFAULT 'grid',
+  `current_power` decimal(10,2) DEFAULT NULL,
+  `lighting_config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`lighting_config`)),
+  `lock_methods` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`lock_methods`)),
+  `error_code` varchar(50) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `serial_number_unique` (`serial_number`),
+  KEY `ocpp_server_id` (`ocpp_server_id`),
+  KEY `idx_chargers_ocpp_serial` (`serial_number`),
+  KEY `idx_chargers_ocpp_owner` (`owner_id`),
+  KEY `idx_chargers_ocpp_status` (`status`),
+  CONSTRAINT `chargers_ocpp_ibfk_1` FOREIGN KEY (`ocpp_server_id`) REFERENCES `ocpp_servers` (`id`),
+  CONSTRAINT `chargers_ocpp_ibfk_2` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chargers_ocpp`
+--
+
+LOCK TABLES `chargers_ocpp` WRITE;
+/*!40000 ALTER TABLE `chargers_ocpp` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chargers_ocpp` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charging_profiles`
+--
+
+DROP TABLE IF EXISTS `charging_profiles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charging_profiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_serial` varchar(100) NOT NULL,
+  `connector_id` int(11) NOT NULL DEFAULT 1,
+  `charging_profile_id` int(11) NOT NULL,
+  `stack_level` int(11) NOT NULL DEFAULT 0,
+  `charging_profile_purpose` enum('ChargePointMaxProfile','TxDefaultProfile','TxProfile') NOT NULL,
+  `charging_profile_kind` enum('Absolute','Recurring','Relative') NOT NULL,
+  `recurrency_kind` enum('Daily','Weekly') DEFAULT NULL,
+  `valid_from` datetime DEFAULT NULL,
+  `valid_to` datetime DEFAULT NULL,
+  `charging_schedule` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`charging_schedule`)),
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_profile` (`charger_serial`,`charging_profile_id`),
+  CONSTRAINT `charging_profiles_ibfk_1` FOREIGN KEY (`charger_serial`) REFERENCES `chargers` (`serial_number`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charging_profiles`
+--
+
+LOCK TABLES `charging_profiles` WRITE;
+/*!40000 ALTER TABLE `charging_profiles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `charging_profiles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charging_schedules`
+--
+
+DROP TABLE IF EXISTS `charging_schedules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charging_schedules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `schedule_name` varchar(100) NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `week_days` varchar(20) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `action` enum('enable','disable') NOT NULL DEFAULT 'enable',
+  `power` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `charger_id` (`charger_id`),
+  CONSTRAINT `charging_schedules_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charging_schedules`
+--
+
+LOCK TABLES `charging_schedules` WRITE;
+/*!40000 ALTER TABLE `charging_schedules` DISABLE KEYS */;
+/*!40000 ALTER TABLE `charging_schedules` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `charging_sessions`
+--
+
+DROP TABLE IF EXISTS `charging_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `charging_sessions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ocpp_transaction_id` int(11) DEFAULT NULL,
+  `meter_start` int(11) DEFAULT 0,
+  `charger_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `total_energy` decimal(10,2) DEFAULT NULL,
+  `current_power` decimal(6,2) DEFAULT 0.00,
+  `duration_seconds` int(11) DEFAULT NULL,
+  `estimated_cost` decimal(10,2) DEFAULT NULL,
+  `charging_mode` enum('solar','grid','mixed','surplus') NOT NULL DEFAULT 'grid',
+  `max_power_used` int(11) DEFAULT NULL,
+  `rate_per_kwh` decimal(12,4) NOT NULL DEFAULT 0.0000,
+  `last_meter_update` datetime DEFAULT NULL,
+  `status` enum('active','completed','failed','pending') DEFAULT 'active',
+  `meter_stop` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_sessions_charger` (`charger_id`),
+  KEY `idx_sessions_user` (`user_id`),
+  KEY `idx_ocpp_transaction_id` (`ocpp_transaction_id`),
+  KEY `idx_last_meter_update` (`last_meter_update`),
+  KEY `idx_ocpp_transaction` (`ocpp_transaction_id`),
+  CONSTRAINT `charging_sessions_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`),
+  CONSTRAINT `charging_sessions_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `charging_sessions`
+--
+
+LOCK TABLES `charging_sessions` WRITE;
+/*!40000 ALTER TABLE `charging_sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `charging_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `invitations`
+--
+
+DROP TABLE IF EXISTS `invitations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `invitations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `guest_email` varchar(255) NOT NULL,
+  `invitation_token` varchar(255) NOT NULL,
+  `access_level` enum('admin','user') NOT NULL DEFAULT 'user',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `expires_at` datetime NOT NULL,
+  `accepted_at` datetime DEFAULT NULL,
+  `status` enum('pending','accepted','rejected','expired') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`id`),
+  KEY `charger_id` (`charger_id`),
+  KEY `idx_invitations_token` (`invitation_token`),
+  CONSTRAINT `invitations_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `invitations`
+--
+
+LOCK TABLES `invitations` WRITE;
+/*!40000 ALTER TABLE `invitations` DISABLE KEYS */;
+INSERT INTO `invitations` (`id`, `charger_id`, `guest_email`, `invitation_token`, `access_level`, `created_at`, `expires_at`, `accepted_at`, `status`) VALUES (62,146,'cargadoresdkg@gmail.com','8b7dc1df-5b22-4d22-91d4-2314c8baad35','user','2025-12-16 15:58:02','2025-12-23 15:58:02','2025-12-16 15:59:06','accepted');
+/*!40000 ALTER TABLE `invitations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `locking_devices`
+--
+
+DROP TABLE IF EXISTS `locking_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `locking_devices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `device_type` enum('nfc','bluetooth') NOT NULL,
+  `device_identifier` varchar(255) NOT NULL,
+  `device_name` varchar(100) NOT NULL,
+  `registered_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `charger_id` (`charger_id`),
+  CONSTRAINT `locking_devices_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `locking_devices`
+--
+
+LOCK TABLES `locking_devices` WRITE;
+/*!40000 ALTER TABLE `locking_devices` DISABLE KEYS */;
+/*!40000 ALTER TABLE `locking_devices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `logs`
+--
+
+DROP TABLE IF EXISTS `logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `action` varchar(100) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `executed_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `logs`
+--
+
+LOCK TABLES `logs` WRITE;
+/*!40000 ALTER TABLE `logs` DISABLE KEYS */;
+INSERT INTO `logs` (`id`, `charger_id`, `action`, `description`, `executed_at`, `created_at`) VALUES (118,1,'plug_in','Usuario 62 activó el cargador','2025-07-10 09:20:54','2025-07-10 09:20:54'),
+(119,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-10 09:20:57','2025-07-10 09:20:57'),
+(120,1,'plug_in','Usuario 62 activó el cargador','2025-07-10 09:20:59','2025-07-10 09:20:59'),
+(121,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-10 09:21:01','2025-07-10 09:21:01'),
+(122,2,'plug_in','Usuario 62 activó el cargador','2025-07-10 15:29:49','2025-07-10 15:29:49'),
+(123,1,'plug_in','Usuario 62 activó el cargador','2025-07-10 15:29:54','2025-07-10 15:29:54'),
+(124,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-24 12:05:43','2025-07-24 12:05:43'),
+(125,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-24 12:05:45','2025-07-24 12:05:45'),
+(126,1,'plug_in','Usuario 62 activó el cargador','2025-07-24 17:01:29','2025-07-24 17:01:29'),
+(127,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-24 17:01:30','2025-07-24 17:01:30'),
+(128,1,'plug_in','Usuario 62 activó el cargador','2025-07-24 17:01:30','2025-07-24 17:01:30'),
+(129,1,'plug_in','Usuario 62 activó el cargador','2025-07-25 12:17:46','2025-07-25 12:17:46'),
+(130,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-25 12:17:51','2025-07-25 12:17:51'),
+(131,1,'plug_in','Usuario 62 activó el cargador','2025-07-25 13:47:14','2025-07-25 13:47:14'),
+(132,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-25 13:47:16','2025-07-25 13:47:16'),
+(133,1,'plug_in','Usuario 62 activó el cargador','2025-07-25 13:47:16','2025-07-25 13:47:16'),
+(134,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-25 13:47:17','2025-07-25 13:47:17'),
+(135,1,'plug_in','Usuario 62 activó el cargador','2025-07-25 15:43:16','2025-07-25 15:43:16'),
+(136,1,'plug_in','Usuario 62 activó el cargador','2025-07-31 13:56:08','2025-07-31 13:56:08'),
+(137,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-31 13:56:09','2025-07-31 13:56:09'),
+(138,1,'plug_in','Usuario 62 activó el cargador','2025-07-31 13:56:09','2025-07-31 13:56:09'),
+(139,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-31 13:56:10','2025-07-31 13:56:10'),
+(140,1,'plug_in','Usuario 62 activó el cargador','2025-07-31 13:56:10','2025-07-31 13:56:10'),
+(141,1,'plug_out','Usuario 62 desactivó el cargador','2025-07-31 13:56:11','2025-07-31 13:56:11'),
+(142,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:48:10','2025-08-01 12:48:10'),
+(143,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:48:17','2025-08-01 12:48:17'),
+(144,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 12:49:09','2025-08-01 12:49:09'),
+(145,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:49:13','2025-08-01 12:49:13'),
+(146,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:49:18','2025-08-01 12:49:18'),
+(147,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 12:49:19','2025-08-01 12:49:19'),
+(148,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:49:20','2025-08-01 12:49:20'),
+(149,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 12:49:23','2025-08-01 12:49:23'),
+(150,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:49:28','2025-08-01 12:49:28'),
+(151,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 12:52:15','2025-08-01 12:52:15'),
+(152,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 12:52:24','2025-08-01 12:52:24'),
+(153,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 12:54:39','2025-08-01 12:54:39'),
+(154,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 13:08:37','2025-08-01 13:08:37'),
+(155,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:15:09','2025-08-01 13:15:09'),
+(156,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 13:25:22','2025-08-01 13:25:22'),
+(157,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:56:31','2025-08-01 13:56:31'),
+(158,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:56:35','2025-08-01 13:56:35'),
+(159,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:56:36','2025-08-01 13:56:36'),
+(160,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:56:36','2025-08-01 13:56:36'),
+(161,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:56:37','2025-08-01 13:56:37'),
+(162,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 13:58:27','2025-08-01 13:58:27'),
+(163,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:58:31','2025-08-01 13:58:31'),
+(164,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:58:32','2025-08-01 13:58:32'),
+(165,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 13:58:32','2025-08-01 13:58:32'),
+(166,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:04:17','2025-08-01 14:04:17'),
+(167,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:21','2025-08-01 14:04:21'),
+(168,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:23','2025-08-01 14:04:23'),
+(169,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:23','2025-08-01 14:04:23'),
+(170,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:24','2025-08-01 14:04:24'),
+(171,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:24','2025-08-01 14:04:24'),
+(172,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:42','2025-08-01 14:04:42'),
+(173,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:42','2025-08-01 14:04:42'),
+(174,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:42','2025-08-01 14:04:42'),
+(175,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:42','2025-08-01 14:04:42'),
+(176,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:42','2025-08-01 14:04:42'),
+(177,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:43','2025-08-01 14:04:43'),
+(178,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:44','2025-08-01 14:04:44'),
+(179,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:44','2025-08-01 14:04:44'),
+(180,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:45','2025-08-01 14:04:45'),
+(181,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:45','2025-08-01 14:04:45'),
+(182,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:45','2025-08-01 14:04:45'),
+(183,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:45','2025-08-01 14:04:45'),
+(184,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:45','2025-08-01 14:04:45'),
+(185,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:45','2025-08-01 14:04:45'),
+(186,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:46','2025-08-01 14:04:46'),
+(187,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:46','2025-08-01 14:04:46'),
+(188,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:04:46','2025-08-01 14:04:46'),
+(189,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:08:01','2025-08-01 14:08:01'),
+(190,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:08:45','2025-08-01 14:08:45'),
+(191,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:09:19','2025-08-01 14:09:19'),
+(192,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:09:25','2025-08-01 14:09:25'),
+(193,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:09:56','2025-08-01 14:09:56'),
+(194,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:17:40','2025-08-01 14:17:40'),
+(195,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:17:41','2025-08-01 14:17:41'),
+(196,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:17:42','2025-08-01 14:17:42'),
+(197,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:17:43','2025-08-01 14:17:43'),
+(198,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:17:45','2025-08-01 14:17:45'),
+(199,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:32:54','2025-08-01 14:32:54'),
+(200,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:32:55','2025-08-01 14:32:55'),
+(201,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:32:58','2025-08-01 14:32:58'),
+(202,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:32:59','2025-08-01 14:32:59'),
+(203,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:33:07','2025-08-01 14:33:07'),
+(204,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:33:09','2025-08-01 14:33:09'),
+(205,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:33:36','2025-08-01 14:33:36'),
+(206,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:38:14','2025-08-01 14:38:14'),
+(207,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:38:15','2025-08-01 14:38:15'),
+(208,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:38:15','2025-08-01 14:38:15'),
+(209,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-01 14:38:16','2025-08-01 14:38:16'),
+(210,1,'plug_in','Usuario 62 activó el cargador','2025-08-01 14:58:50','2025-08-01 14:58:50'),
+(211,1,'plug_in','Usuario 62 activó el cargador','2025-08-04 13:22:32','2025-08-04 13:22:32'),
+(212,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-04 13:22:38','2025-08-04 13:22:38'),
+(213,1,'plug_in','Usuario 62 activó el cargador','2025-08-04 13:22:41','2025-08-04 13:22:41'),
+(214,1,'plug_in','Usuario 62 activó el cargador','2025-08-04 14:48:01','2025-08-04 14:48:01'),
+(215,1,'plug_in','Usuario 62 activó el cargador','2025-08-04 15:17:34','2025-08-04 15:17:34'),
+(216,19,'plug_in','Usuario 62 activó el cargador','2025-08-04 15:17:38','2025-08-04 15:17:38'),
+(217,1,'plug_in','Usuario 62 activó el cargador','2025-08-04 16:46:13','2025-08-04 16:46:13'),
+(218,1,'plug_in','Usuario 62 activó el cargador','2025-08-04 17:38:53','2025-08-04 17:38:53'),
+(219,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-04 17:43:11','2025-08-04 17:43:11'),
+(220,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 09:26:39','2025-08-05 09:26:39'),
+(221,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 09:58:37','2025-08-05 09:58:37'),
+(222,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:17:01','2025-08-05 10:17:01'),
+(223,19,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:17:08','2025-08-05 10:17:08'),
+(224,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:17:50','2025-08-05 10:17:50'),
+(225,19,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:17:54','2025-08-05 10:17:54'),
+(226,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:46:05','2025-08-05 10:46:05'),
+(227,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:46:11','2025-08-05 10:46:11'),
+(228,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:46:22','2025-08-05 10:46:22'),
+(229,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:46:24','2025-08-05 10:46:24'),
+(230,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:47:39','2025-08-05 10:47:39'),
+(231,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:47:40','2025-08-05 10:47:40'),
+(232,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:48:12','2025-08-05 10:48:12'),
+(233,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:48:17','2025-08-05 10:48:17'),
+(234,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 10:53:34','2025-08-05 10:53:34'),
+(235,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 10:53:37','2025-08-05 10:53:37'),
+(236,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 11:01:07','2025-08-05 11:01:07'),
+(237,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 11:01:27','2025-08-05 11:01:27'),
+(238,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 11:01:52','2025-08-05 11:01:52'),
+(239,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 11:06:37','2025-08-05 11:06:37'),
+(240,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 11:06:45','2025-08-05 11:06:45'),
+(241,19,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 11:07:23','2025-08-05 11:07:23'),
+(242,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 11:09:23','2025-08-05 11:09:23'),
+(243,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 11:09:31','2025-08-05 11:09:31'),
+(244,20,'plug_in','Usuario 62 activó el cargador','2025-08-05 13:33:50','2025-08-05 13:33:50'),
+(245,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 15:14:20','2025-08-05 15:14:20'),
+(246,1,'plug_in','Usuario 62 activó el cargador','2025-08-05 15:14:24','2025-08-05 15:14:24'),
+(247,19,'plug_in','Usuario 62 activó el cargador','2025-08-05 17:07:06','2025-08-05 17:07:06'),
+(248,19,'plug_out','Usuario 62 desactivó el cargador','2025-08-05 17:07:18','2025-08-05 17:07:18'),
+(249,1,'plug_in','Usuario 62 activó el cargador','2025-08-08 14:11:50','2025-08-08 14:11:50'),
+(250,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-19 12:06:47','2025-08-19 12:06:47'),
+(251,1,'plug_in','Usuario 62 activó el cargador','2025-08-19 12:06:48','2025-08-19 12:06:48'),
+(252,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-19 12:06:48','2025-08-19 12:06:48'),
+(253,1,'plug_in','Usuario 62 activó el cargador','2025-08-19 12:06:49','2025-08-19 12:06:49'),
+(254,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-19 12:06:49','2025-08-19 12:06:49'),
+(255,1,'plug_in','Usuario 62 activó el cargador','2025-08-19 12:06:50','2025-08-19 12:06:50'),
+(256,19,'plug_in','Usuario 62 activó el cargador','2025-08-19 13:09:30','2025-08-19 13:09:30'),
+(257,19,'plug_out','Usuario 62 desactivó el cargador','2025-08-19 13:09:33','2025-08-19 13:09:33'),
+(258,1,'plug_in','Usuario 62 activó el cargador','2025-08-20 14:39:35','2025-08-20 14:39:35'),
+(259,1,'plug_in','Usuario 62 activó el cargador','2025-08-20 14:42:09','2025-08-20 14:42:09'),
+(260,19,'plug_in','Usuario 62 activó el cargador','2025-08-21 15:10:49','2025-08-21 15:10:49'),
+(261,1,'plug_in','Usuario 62 activó el cargador','2025-08-21 15:29:10','2025-08-21 15:29:10'),
+(262,1,'plug_in','Usuario 62 activó el cargador','2025-08-21 15:53:07','2025-08-21 15:53:07'),
+(263,21,'plug_in','Usuario 62 activó el cargador','2025-08-22 09:57:24','2025-08-22 09:57:24'),
+(264,1,'plug_in','Usuario 62 activó el cargador','2025-08-22 10:04:42','2025-08-22 10:04:42'),
+(265,22,'plug_in','Usuario 62 activó el cargador','2025-08-27 14:42:43','2025-08-27 14:42:43'),
+(266,22,'plug_in','Usuario 62 activó el cargador','2025-08-27 14:43:53','2025-08-27 14:43:53'),
+(267,1,'plug_in','Usuario 62 activó el cargador','2025-08-27 14:44:30','2025-08-27 14:44:30'),
+(268,1,'plug_in','Usuario 62 activó el cargador','2025-08-27 15:21:30','2025-08-27 15:21:30'),
+(269,1,'plug_out','Usuario 62 desactivó el cargador','2025-08-29 16:24:03','2025-08-29 16:24:03'),
+(270,1,'plug_in','Usuario 62 activó el cargador','2025-08-29 16:24:11','2025-08-29 16:24:11'),
+(271,24,'plug_in','Usuario 62 activó el cargador','2025-09-01 16:28:49','2025-09-01 16:28:49'),
+(272,1,'plug_out','Usuario 62 desactivó el cargador','2025-09-02 16:22:10','2025-09-02 16:22:10'),
+(273,1,'plug_in','Usuario 62 activó el cargador','2025-09-02 16:28:13','2025-09-02 16:28:13'),
+(274,24,'plug_in','Usuario 62 activó el cargador','2025-09-03 12:57:05','2025-09-03 12:57:05'),
+(275,25,'plug_in','Usuario 62 activó el cargador','2025-09-03 14:33:20','2025-09-03 14:33:20'),
+(276,24,'plug_out','Usuario 62 desactivó el cargador','2025-09-05 10:29:19','2025-09-05 10:29:19'),
+(277,1,'plug_out','Usuario 62 desactivó el cargador','2025-09-05 10:29:26','2025-09-05 10:29:26'),
+(278,1,'plug_in','Usuario 62 activó el cargador','2025-09-05 10:29:41','2025-09-05 10:29:41'),
+(279,1,'plug_out','Usuario 62 desactivó el cargador','2025-09-05 10:50:18','2025-09-05 10:50:18'),
+(280,1,'plug_in','Usuario 62 activó el cargador','2025-09-05 10:50:46','2025-09-05 10:50:46'),
+(281,24,'plug_in','Usuario 62 activó el cargador','2025-09-05 14:36:58','2025-09-05 14:36:58'),
+(282,24,'plug_in','Usuario 62 activó el cargador','2025-09-09 13:17:48','2025-09-09 13:17:48'),
+(283,1,'plug_out','Usuario 62 desactivó el cargador','2025-09-10 14:54:28','2025-09-10 14:54:28'),
+(284,1,'plug_in','Usuario 62 activó el cargador','2025-09-10 14:54:32','2025-09-10 14:54:32'),
+(285,1,'plug_out','Usuario 62 desactivó el cargador','2025-09-10 14:55:03','2025-09-10 14:55:03'),
+(286,1,'plug_in','Usuario 62 activó el cargador','2025-09-10 14:55:05','2025-09-10 14:55:05'),
+(287,30,'plug_out','Usuario 62 desactivó el cargador','2025-09-10 17:15:15','2025-09-10 17:15:15'),
+(288,30,'plug_in','Usuario 62 activó el cargador','2025-09-10 17:15:16','2025-09-10 17:15:16'),
+(289,30,'plug_out','Usuario 62 desactivó el cargador','2025-09-10 17:15:17','2025-09-10 17:15:17'),
+(290,30,'plug_in','Usuario 62 activó el cargador','2025-09-11 09:37:23','2025-09-11 09:37:23'),
+(291,30,'plug_out','Usuario 62 desactivó el cargador','2025-09-11 09:37:26','2025-09-11 09:37:26'),
+(292,30,'plug_in','Usuario 62 activó el cargador','2025-09-11 09:37:27','2025-09-11 09:37:27'),
+(293,30,'plug_out','Usuario 62 desactivó el cargador','2025-09-11 09:37:28','2025-09-11 09:37:28'),
+(294,30,'plug_in','Usuario 62 activó el cargador','2025-09-11 09:37:29','2025-09-11 09:37:29'),
+(295,30,'plug_out','Usuario 62 desactivó el cargador','2025-09-11 09:37:30','2025-09-11 09:37:30'),
+(296,30,'plug_in','Usuario 62 activó el cargador','2025-09-11 09:37:32','2025-09-11 09:37:32'),
+(297,30,'plug_out','Usuario 62 desactivó el cargador','2025-09-11 09:37:33','2025-09-11 09:37:33'),
+(298,45,'plug_in','Usuario 62 activ� el cargador','2025-10-16 10:47:45','2025-10-16 10:47:45'),
+(299,45,'plug_out','Usuario 62 desactiv� el cargador','2025-10-16 10:47:47','2025-10-16 10:47:47'),
+(300,45,'plug_in','Usuario 62 activ� el cargador','2025-10-16 10:47:48','2025-10-16 10:47:48'),
+(301,45,'plug_out','Usuario 62 desactiv� el cargador','2025-10-16 10:47:49','2025-10-16 10:47:49'),
+(302,45,'plug_in','Usuario 62 activ� el cargador','2025-10-16 10:48:00','2025-10-16 10:48:00'),
+(303,46,'plug_in','Usuario 62 activ� el cargador','2025-10-16 15:57:31','2025-10-16 15:57:31'),
+(304,46,'plug_out','Usuario 62 desactiv� el cargador','2025-10-16 15:58:16','2025-10-16 15:58:16'),
+(305,47,'plug_in','Usuario 62 activ� el cargador','2025-10-16 17:03:51','2025-10-16 17:03:51'),
+(306,60,'plug_in','Usuario 62 activ� el cargador','2025-10-22 17:38:27','2025-10-22 17:38:27'),
+(307,65,'plug_in','Usuario 62 activ� el cargador','2025-10-27 12:09:03','2025-10-27 12:09:03'),
+(308,68,'plug_in','Usuario 62 activ� el cargador','2025-10-28 12:26:27','2025-10-28 12:26:27'),
+(309,68,'plug_out','Usuario 62 desactiv� el cargador','2025-10-28 12:26:28','2025-10-28 12:26:28'),
+(310,68,'plug_in','Usuario 62 activ� el cargador','2025-10-28 12:26:29','2025-10-28 12:26:29'),
+(311,71,'plug_in','Usuario 62 activ� el cargador','2025-10-29 17:31:29','2025-10-29 17:31:29'),
+(312,71,'plug_out','Usuario 62 desactiv� el cargador','2025-10-29 17:31:30','2025-10-29 17:31:30'),
+(313,71,'plug_in','Usuario 62 activ� el cargador','2025-10-30 10:46:04','2025-10-30 10:46:04'),
+(314,71,'plug_out','Usuario 62 desactiv� el cargador','2025-10-30 10:46:05','2025-10-30 10:46:05'),
+(315,71,'plug_in','Usuario 62 activ� el cargador','2025-10-30 10:46:06','2025-10-30 10:46:06'),
+(316,71,'plug_out','Usuario 62 desactiv� el cargador','2025-10-30 10:46:07','2025-10-30 10:46:07'),
+(317,71,'plug_in','Usuario 62 activ� el cargador','2025-10-30 10:46:08','2025-10-30 10:46:08'),
+(318,71,'plug_out','Usuario 62 desactiv� el cargador','2025-10-30 10:46:10','2025-10-30 10:46:10'),
+(319,71,'plug_in','Usuario 62 activ� el cargador','2025-10-30 10:46:22','2025-10-30 10:46:22'),
+(320,71,'plug_out','Usuario 62 desactiv� el cargador','2025-10-30 10:46:22','2025-10-30 10:46:22'),
+(321,91,'plug_in','Usuario 62 activ� el cargador','2025-11-03 13:07:53','2025-11-03 13:07:53'),
+(322,92,'plug_in','Usuario 62 activ� el cargador','2025-11-03 13:23:39','2025-11-03 13:23:39'),
+(323,100,'plug_in','Usuario 62 activ� el cargador','2025-11-04 11:21:07','2025-11-04 11:21:07'),
+(324,106,'plug_in','Usuario 62 activ� el cargador','2025-11-05 09:45:41','2025-11-05 09:45:41'),
+(325,106,'plug_out','Usuario 62 desactiv� el cargador','2025-11-05 09:45:43','2025-11-05 09:45:43'),
+(326,127,'plug_in','Usuario 62 activ� el cargador','2025-11-18 13:06:08','2025-11-18 13:06:08'),
+(327,131,'plug_in','Usuario 62 activ� el cargador','2025-11-19 17:27:41','2025-11-19 17:27:41'),
+(328,134,'plug_in','Usuario 62 activ� el cargador','2025-11-24 09:44:47','2025-11-24 09:44:47'),
+(329,134,'plug_in','Usuario 62 activ� el cargador','2025-11-24 16:00:20','2025-11-24 16:00:20'),
+(330,146,'lock','Usuario 62 bloque� el cargador','2025-12-16 16:20:50','2025-12-16 16:20:50'),
+(331,146,'lock','Usuario 62 bloque� el cargador','2025-12-16 16:21:21','2025-12-16 16:21:21'),
+(332,146,'lock','Usuario 62 bloque� el cargador','2025-12-16 16:26:59','2025-12-16 16:26:59'),
+(333,146,'lock','Usuario 62 bloque� el cargador','2025-12-16 16:29:19','2025-12-16 16:29:19');
+/*!40000 ALTER TABLE `logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `meter_values`
+--
+
+DROP TABLE IF EXISTS `meter_values`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `meter_values` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charge_point_id` varchar(128) NOT NULL,
+  `connector_id` int(8) NOT NULL DEFAULT 0,
+  `session_id` int(11) DEFAULT NULL,
+  `transaction_id` int(11) DEFAULT NULL,
+  `timestamp` datetime NOT NULL,
+  `value` decimal(12,4) NOT NULL,
+  `context` varchar(64) DEFAULT NULL,
+  `format` varchar(64) DEFAULT NULL,
+  `measurand` varchar(128) NOT NULL,
+  `unit` varchar(32) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_charge_point` (`charge_point_id`),
+  KEY `idx_transaction` (`transaction_id`),
+  KEY `idx_timestamp` (`timestamp`),
+  KEY `idx_measurand` (`measurand`),
+  KEY `idx_session` (`session_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `meter_values`
+--
+
+LOCK TABLES `meter_values` WRITE;
+/*!40000 ALTER TABLE `meter_values` DISABLE KEYS */;
+INSERT INTO `meter_values` (`id`, `charge_point_id`, `connector_id`, `session_id`, `transaction_id`, `timestamp`, `value`, `context`, `format`, `measurand`, `unit`, `created_at`, `updated_at`) VALUES (1,'944067',1,NULL,97958,'2025-11-25 14:47:37',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:38','2025-11-25 13:47:38'),
+(2,'944067',1,NULL,97958,'2025-11-25 14:47:37',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:38','2025-11-25 13:47:38'),
+(3,'944067',1,NULL,97958,'2025-11-25 14:47:41',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:42','2025-11-25 13:47:42'),
+(4,'944067',1,NULL,97958,'2025-11-25 14:47:41',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:42','2025-11-25 13:47:42'),
+(5,'944067',1,NULL,97958,'2025-11-25 14:47:44',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:45','2025-11-25 13:47:45'),
+(6,'944067',1,NULL,97958,'2025-11-25 14:47:44',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:45','2025-11-25 13:47:45'),
+(7,'944067',1,NULL,97958,'2025-11-25 14:47:47',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:48','2025-11-25 13:47:48'),
+(8,'944067',1,NULL,97958,'2025-11-25 14:47:47',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:48','2025-11-25 13:47:48'),
+(9,'944067',1,NULL,97958,'2025-11-25 14:47:50',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:51','2025-11-25 13:47:51'),
+(10,'944067',1,NULL,97958,'2025-11-25 14:47:50',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:51','2025-11-25 13:47:51'),
+(11,'944067',1,NULL,97958,'2025-11-25 14:47:53',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:54','2025-11-25 13:47:54'),
+(12,'944067',1,NULL,97958,'2025-11-25 14:47:53',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:54','2025-11-25 13:47:54'),
+(13,'944067',1,NULL,97958,'2025-11-25 14:47:56',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:47:57','2025-11-25 13:47:57'),
+(14,'944067',1,NULL,97958,'2025-11-25 14:47:56',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:47:57','2025-11-25 13:47:57'),
+(15,'944067',1,NULL,97958,'2025-11-25 14:47:59',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:00','2025-11-25 13:48:00'),
+(16,'944067',1,NULL,97958,'2025-11-25 14:47:59',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:00','2025-11-25 13:48:00'),
+(17,'944067',1,NULL,97958,'2025-11-25 14:48:02',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:03','2025-11-25 13:48:03'),
+(18,'944067',1,NULL,97958,'2025-11-25 14:48:02',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:03','2025-11-25 13:48:03'),
+(19,'944067',1,NULL,97958,'2025-11-25 14:48:05',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:06','2025-11-25 13:48:06'),
+(20,'944067',1,NULL,97958,'2025-11-25 14:48:05',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:06','2025-11-25 13:48:06'),
+(21,'944067',1,NULL,97958,'2025-11-25 14:48:08',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:09','2025-11-25 13:48:09'),
+(22,'944067',1,NULL,97958,'2025-11-25 14:48:08',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:09','2025-11-25 13:48:09'),
+(23,'944067',1,NULL,97958,'2025-11-25 14:48:11',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:12','2025-11-25 13:48:12'),
+(24,'944067',1,NULL,97958,'2025-11-25 14:48:11',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:12','2025-11-25 13:48:12'),
+(25,'944067',1,NULL,97958,'2025-11-25 14:48:14',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:15','2025-11-25 13:48:15'),
+(26,'944067',1,NULL,97958,'2025-11-25 14:48:14',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:15','2025-11-25 13:48:15'),
+(27,'944067',1,NULL,97958,'2025-11-25 14:48:17',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:18','2025-11-25 13:48:18'),
+(28,'944067',1,NULL,97958,'2025-11-25 14:48:17',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:18','2025-11-25 13:48:18'),
+(29,'944067',1,NULL,97958,'2025-11-25 14:48:20',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:21','2025-11-25 13:48:21'),
+(30,'944067',1,NULL,97958,'2025-11-25 14:48:20',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:21','2025-11-25 13:48:21'),
+(31,'944067',1,NULL,97958,'2025-11-25 14:48:23',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:24','2025-11-25 13:48:24'),
+(32,'944067',1,NULL,97958,'2025-11-25 14:48:23',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:24','2025-11-25 13:48:24'),
+(33,'944067',1,NULL,97958,'2025-11-25 14:48:26',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:27','2025-11-25 13:48:27'),
+(34,'944067',1,NULL,97958,'2025-11-25 14:48:26',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:27','2025-11-25 13:48:27'),
+(35,'944067',1,NULL,97958,'2025-11-25 14:48:30',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:48:31','2025-11-25 13:48:31'),
+(36,'944067',1,NULL,97958,'2025-11-25 14:48:30',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:48:31','2025-11-25 13:48:31'),
+(37,'944067',1,NULL,97958,'2025-11-25 14:51:45',807.0000,'Sample.Periodic','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:51:46','2025-11-25 13:51:46'),
+(38,'944067',1,NULL,97958,'2025-11-25 14:51:45',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-25 13:51:46','2025-11-25 13:51:46'),
+(39,'944067',1,NULL,43773,'2025-11-25 14:55:31',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:32','2025-11-25 13:55:32'),
+(40,'944067',1,NULL,43773,'2025-11-25 14:55:31',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:32','2025-11-25 13:55:32'),
+(41,'944067',1,NULL,43773,'2025-11-25 14:55:34',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:35','2025-11-25 13:55:35'),
+(42,'944067',1,NULL,43773,'2025-11-25 14:55:34',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:35','2025-11-25 13:55:35'),
+(43,'944067',1,NULL,43773,'2025-11-25 14:55:37',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:38','2025-11-25 13:55:38'),
+(44,'944067',1,NULL,43773,'2025-11-25 14:55:37',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:38','2025-11-25 13:55:38'),
+(45,'944067',1,NULL,43773,'2025-11-25 14:55:40',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:41','2025-11-25 13:55:41'),
+(46,'944067',1,NULL,43773,'2025-11-25 14:55:40',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:41','2025-11-25 13:55:41'),
+(47,'944067',1,NULL,43773,'2025-11-25 14:55:43',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:44','2025-11-25 13:55:44'),
+(48,'944067',1,NULL,43773,'2025-11-25 14:55:43',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:44','2025-11-25 13:55:44'),
+(49,'944067',1,NULL,43773,'2025-11-25 14:55:46',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:47','2025-11-25 13:55:47'),
+(50,'944067',1,NULL,43773,'2025-11-25 14:55:46',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:47','2025-11-25 13:55:47'),
+(51,'944067',1,NULL,43773,'2025-11-25 14:55:49',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:50','2025-11-25 13:55:50'),
+(52,'944067',1,NULL,43773,'2025-11-25 14:55:49',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:50','2025-11-25 13:55:50'),
+(53,'944067',1,NULL,43773,'2025-11-25 14:55:52',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:53','2025-11-25 13:55:53'),
+(54,'944067',1,NULL,43773,'2025-11-25 14:55:52',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:53','2025-11-25 13:55:53'),
+(55,'944067',1,NULL,43773,'2025-11-25 14:55:55',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:55:56','2025-11-25 13:55:56'),
+(56,'944067',1,NULL,43773,'2025-11-25 14:55:55',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:55:56','2025-11-25 13:55:56'),
+(57,'944067',1,NULL,43773,'2025-11-25 14:56:29',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:56:30','2025-11-25 13:56:30'),
+(58,'944067',1,NULL,43773,'2025-11-25 14:56:29',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:56:30','2025-11-25 13:56:30'),
+(59,'944067',1,NULL,43773,'2025-11-25 14:56:33',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 13:56:34','2025-11-25 13:56:34'),
+(60,'944067',1,NULL,43773,'2025-11-25 14:56:33',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 13:56:34','2025-11-25 13:56:34'),
+(61,'944067',1,NULL,92760,'2025-11-25 15:46:42',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:42','2025-11-25 14:46:42'),
+(62,'944067',1,NULL,92760,'2025-11-25 15:46:42',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:46:42','2025-11-25 14:46:42'),
+(63,'944067',1,NULL,92760,'2025-11-25 15:46:46',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:46','2025-11-25 14:46:46'),
+(64,'944067',1,NULL,92760,'2025-11-25 15:46:46',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:46:46','2025-11-25 14:46:46'),
+(65,'944067',1,NULL,92760,'2025-11-25 15:46:46',807.0000,'Sample.Periodic','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:46','2025-11-25 14:46:46'),
+(66,'944067',1,NULL,92760,'2025-11-25 15:46:46',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-25 14:46:46','2025-11-25 14:46:46'),
+(67,'944067',1,NULL,92760,'2025-11-25 15:46:49',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:49','2025-11-25 14:46:49'),
+(68,'944067',1,NULL,92760,'2025-11-25 15:46:49',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:46:49','2025-11-25 14:46:49'),
+(69,'944067',1,NULL,92760,'2025-11-25 15:46:52',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:52','2025-11-25 14:46:52'),
+(70,'944067',1,NULL,92760,'2025-11-25 15:46:52',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:46:52','2025-11-25 14:46:52'),
+(71,'944067',1,NULL,92760,'2025-11-25 15:46:55',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:55','2025-11-25 14:46:55'),
+(72,'944067',1,NULL,92760,'2025-11-25 15:46:55',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:46:55','2025-11-25 14:46:55'),
+(73,'944067',1,NULL,92760,'2025-11-25 15:46:58',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:46:58','2025-11-25 14:46:58'),
+(74,'944067',1,NULL,92760,'2025-11-25 15:46:58',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:46:58','2025-11-25 14:46:58'),
+(75,'944067',1,NULL,92760,'2025-11-25 15:47:01',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:01','2025-11-25 14:47:01'),
+(76,'944067',1,NULL,92760,'2025-11-25 15:47:01',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:01','2025-11-25 14:47:01'),
+(77,'944067',1,NULL,92760,'2025-11-25 15:47:04',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:04','2025-11-25 14:47:04'),
+(78,'944067',1,NULL,92760,'2025-11-25 15:47:04',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:04','2025-11-25 14:47:04'),
+(79,'944067',1,NULL,92760,'2025-11-25 15:47:07',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:07','2025-11-25 14:47:07'),
+(80,'944067',1,NULL,92760,'2025-11-25 15:47:07',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:07','2025-11-25 14:47:07'),
+(81,'944067',1,NULL,92760,'2025-11-25 15:47:09',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:10','2025-11-25 14:47:10'),
+(82,'944067',1,NULL,92760,'2025-11-25 15:47:09',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:10','2025-11-25 14:47:10'),
+(83,'944067',1,NULL,92760,'2025-11-25 15:47:12',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:13','2025-11-25 14:47:13'),
+(84,'944067',1,NULL,92760,'2025-11-25 15:47:12',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:13','2025-11-25 14:47:13'),
+(85,'944067',1,NULL,92760,'2025-11-25 15:47:15',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:16','2025-11-25 14:47:16'),
+(86,'944067',1,NULL,92760,'2025-11-25 15:47:15',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:16','2025-11-25 14:47:16'),
+(87,'944067',1,NULL,92760,'2025-11-25 15:47:18',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:19','2025-11-25 14:47:19'),
+(88,'944067',1,NULL,92760,'2025-11-25 15:47:18',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:19','2025-11-25 14:47:19'),
+(89,'944067',1,NULL,92760,'2025-11-25 15:47:22',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:22','2025-11-25 14:47:22'),
+(90,'944067',1,NULL,92760,'2025-11-25 15:47:22',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:22','2025-11-25 14:47:22'),
+(91,'944067',1,NULL,92760,'2025-11-25 15:47:24',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:25','2025-11-25 14:47:25'),
+(92,'944067',1,NULL,92760,'2025-11-25 15:47:24',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:25','2025-11-25 14:47:25'),
+(93,'944067',1,NULL,92760,'2025-11-25 15:47:28',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:28','2025-11-25 14:47:28'),
+(94,'944067',1,NULL,92760,'2025-11-25 15:47:28',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:28','2025-11-25 14:47:28'),
+(95,'944067',1,NULL,92760,'2025-11-25 15:47:31',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:31','2025-11-25 14:47:31'),
+(96,'944067',1,NULL,92760,'2025-11-25 15:47:31',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:31','2025-11-25 14:47:31'),
+(97,'944067',1,NULL,92760,'2025-11-25 15:47:34',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:34','2025-11-25 14:47:34'),
+(98,'944067',1,NULL,92760,'2025-11-25 15:47:34',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:34','2025-11-25 14:47:34'),
+(99,'944067',1,NULL,92760,'2025-11-25 15:47:37',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:37','2025-11-25 14:47:37'),
+(100,'944067',1,NULL,92760,'2025-11-25 15:47:37',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:37','2025-11-25 14:47:37'),
+(101,'944067',1,NULL,92760,'2025-11-25 15:47:40',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:40','2025-11-25 14:47:40'),
+(102,'944067',1,NULL,92760,'2025-11-25 15:47:40',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:40','2025-11-25 14:47:40'),
+(103,'944067',1,NULL,92760,'2025-11-25 15:47:42',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:43','2025-11-25 14:47:43'),
+(104,'944067',1,NULL,92760,'2025-11-25 15:47:42',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:43','2025-11-25 14:47:43'),
+(105,'944067',1,NULL,92760,'2025-11-25 15:47:45',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:46','2025-11-25 14:47:46'),
+(106,'944067',1,NULL,92760,'2025-11-25 15:47:45',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:46','2025-11-25 14:47:46'),
+(107,'944067',1,NULL,92760,'2025-11-25 15:47:48',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:49','2025-11-25 14:47:49'),
+(108,'944067',1,NULL,92760,'2025-11-25 15:47:48',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:49','2025-11-25 14:47:49'),
+(109,'944067',1,NULL,92760,'2025-11-25 15:47:51',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:52','2025-11-25 14:47:52'),
+(110,'944067',1,NULL,92760,'2025-11-25 15:47:51',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:52','2025-11-25 14:47:52'),
+(111,'944067',1,NULL,92760,'2025-11-25 15:47:54',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:55','2025-11-25 14:47:55'),
+(112,'944067',1,NULL,92760,'2025-11-25 15:47:54',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:55','2025-11-25 14:47:55'),
+(113,'944067',1,NULL,92760,'2025-11-25 15:47:57',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:47:58','2025-11-25 14:47:58'),
+(114,'944067',1,NULL,92760,'2025-11-25 15:47:57',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:47:58','2025-11-25 14:47:58'),
+(115,'944067',1,NULL,92760,'2025-11-25 15:48:00',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:48:01','2025-11-25 14:48:01'),
+(116,'944067',1,NULL,92760,'2025-11-25 15:48:00',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:48:01','2025-11-25 14:48:01'),
+(117,'944067',1,NULL,92760,'2025-11-25 15:48:03',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:48:04','2025-11-25 14:48:04'),
+(118,'944067',1,NULL,92760,'2025-11-25 15:48:03',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:48:04','2025-11-25 14:48:04'),
+(119,'944067',1,NULL,92760,'2025-11-25 15:48:06',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:48:07','2025-11-25 14:48:07'),
+(120,'944067',1,NULL,92760,'2025-11-25 15:48:06',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:48:07','2025-11-25 14:48:07'),
+(121,'944067',1,NULL,92760,'2025-11-25 15:48:09',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:48:10','2025-11-25 14:48:10'),
+(122,'944067',1,NULL,92760,'2025-11-25 15:48:09',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:48:10','2025-11-25 14:48:10'),
+(123,'944067',1,NULL,92760,'2025-11-25 15:48:13',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:48:14','2025-11-25 14:48:14'),
+(124,'944067',1,NULL,92760,'2025-11-25 15:48:13',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:48:14','2025-11-25 14:48:14'),
+(125,'944067',1,NULL,45479,'2025-11-25 15:51:02',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:03','2025-11-25 14:51:03'),
+(126,'944067',1,NULL,45479,'2025-11-25 15:51:02',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:03','2025-11-25 14:51:03'),
+(127,'944067',1,NULL,45479,'2025-11-25 15:51:06',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:06','2025-11-25 14:51:06'),
+(128,'944067',1,NULL,45479,'2025-11-25 15:51:06',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:06','2025-11-25 14:51:06'),
+(129,'944067',1,NULL,45479,'2025-11-25 15:51:09',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:09','2025-11-25 14:51:09'),
+(130,'944067',1,NULL,45479,'2025-11-25 15:51:09',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:09','2025-11-25 14:51:09'),
+(131,'944067',1,NULL,45479,'2025-11-25 15:51:12',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:12','2025-11-25 14:51:12'),
+(132,'944067',1,NULL,45479,'2025-11-25 15:51:12',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:12','2025-11-25 14:51:12'),
+(133,'944067',1,NULL,45479,'2025-11-25 15:51:15',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:15','2025-11-25 14:51:15'),
+(134,'944067',1,NULL,45479,'2025-11-25 15:51:15',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:15','2025-11-25 14:51:15'),
+(135,'944067',1,NULL,45479,'2025-11-25 15:51:18',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:18','2025-11-25 14:51:18'),
+(136,'944067',1,NULL,45479,'2025-11-25 15:51:18',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:18','2025-11-25 14:51:18'),
+(137,'944067',1,NULL,45479,'2025-11-25 15:51:21',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:21','2025-11-25 14:51:21'),
+(138,'944067',1,NULL,45479,'2025-11-25 15:51:21',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:21','2025-11-25 14:51:21'),
+(139,'944067',1,NULL,45479,'2025-11-25 15:51:24',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:24','2025-11-25 14:51:24'),
+(140,'944067',1,NULL,45479,'2025-11-25 15:51:24',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:24','2025-11-25 14:51:24'),
+(141,'944067',1,NULL,45479,'2025-11-25 15:51:28',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:28','2025-11-25 14:51:28'),
+(142,'944067',1,NULL,45479,'2025-11-25 15:51:28',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:28','2025-11-25 14:51:28'),
+(143,'944067',1,NULL,45479,'2025-11-25 15:51:46',807.0000,'Sample.Periodic','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:47','2025-11-25 14:51:47'),
+(144,'944067',1,NULL,45479,'2025-11-25 15:51:46',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-25 14:51:47','2025-11-25 14:51:47'),
+(145,'944067',1,NULL,45479,'2025-11-25 15:51:51',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:51','2025-11-25 14:51:51'),
+(146,'944067',1,NULL,45479,'2025-11-25 15:51:51',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:51','2025-11-25 14:51:51'),
+(147,'944067',1,NULL,45479,'2025-11-25 15:51:53',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:51:54','2025-11-25 14:51:54'),
+(148,'944067',1,NULL,45479,'2025-11-25 15:51:53',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:51:54','2025-11-25 14:51:54'),
+(149,'944067',1,NULL,45479,'2025-11-25 15:51:59',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:52:00','2025-11-25 14:52:00'),
+(150,'944067',1,NULL,45479,'2025-11-25 15:51:59',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:52:00','2025-11-25 14:52:00'),
+(151,'944067',1,NULL,45479,'2025-11-25 15:52:04',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:52:05','2025-11-25 14:52:05'),
+(152,'944067',1,NULL,45479,'2025-11-25 15:52:04',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:52:05','2025-11-25 14:52:05'),
+(153,'944067',1,NULL,45479,'2025-11-25 15:52:07',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:52:08','2025-11-25 14:52:08'),
+(154,'944067',1,NULL,45479,'2025-11-25 15:52:07',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:52:08','2025-11-25 14:52:08'),
+(155,'944067',1,NULL,95397,'2025-11-25 15:53:03',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:53:04','2025-11-25 14:53:04'),
+(156,'944067',1,NULL,95397,'2025-11-25 15:53:03',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:53:04','2025-11-25 14:53:04'),
+(157,'944067',1,NULL,95397,'2025-11-25 15:53:06',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:53:08','2025-11-25 14:53:08'),
+(158,'944067',1,NULL,95397,'2025-11-25 15:53:06',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:53:08','2025-11-25 14:53:08'),
+(159,'944067',1,NULL,95397,'2025-11-25 15:53:09',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:53:10','2025-11-25 14:53:10'),
+(160,'944067',1,NULL,95397,'2025-11-25 15:53:09',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:53:10','2025-11-25 14:53:10'),
+(161,'944067',1,NULL,95397,'2025-11-25 15:55:01',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:55:01','2025-11-25 14:55:01'),
+(162,'944067',1,NULL,95397,'2025-11-25 15:55:01',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 14:55:01','2025-11-25 14:55:01'),
+(163,'944067',1,NULL,95397,'2025-11-25 15:56:46',807.0000,'Sample.Periodic','Raw','Energy.Active.Import.Register','Wh','2025-11-25 14:56:47','2025-11-25 14:56:47'),
+(164,'944067',1,NULL,95397,'2025-11-25 15:56:46',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-25 14:56:47','2025-11-25 14:56:47'),
+(165,'944067',1,NULL,25307,'2025-11-25 16:02:20',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:02:22','2025-11-25 15:02:22'),
+(166,'944067',1,NULL,25307,'2025-11-25 16:02:20',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:02:22','2025-11-25 15:02:22'),
+(167,'944067',1,NULL,25307,'2025-11-25 16:02:25',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:02:25','2025-11-25 15:02:25'),
+(168,'944067',1,NULL,25307,'2025-11-25 16:02:25',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:02:25','2025-11-25 15:02:25'),
+(169,'944067',1,NULL,25307,'2025-11-25 16:02:27',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:02:28','2025-11-25 15:02:28'),
+(170,'944067',1,NULL,25307,'2025-11-25 16:02:27',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:02:28','2025-11-25 15:02:28'),
+(171,'944067',1,NULL,83424,'2025-11-25 16:05:28',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:05:28','2025-11-25 15:05:28'),
+(172,'944067',1,NULL,83424,'2025-11-25 16:05:28',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:05:28','2025-11-25 15:05:28'),
+(173,'944067',1,NULL,83424,'2025-11-25 16:05:31',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:05:32','2025-11-25 15:05:32'),
+(174,'944067',1,NULL,83424,'2025-11-25 16:05:31',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:05:32','2025-11-25 15:05:32'),
+(175,'944067',1,NULL,83424,'2025-11-25 16:05:34',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:05:35','2025-11-25 15:05:35'),
+(176,'944067',1,NULL,83424,'2025-11-25 16:05:34',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:05:35','2025-11-25 15:05:35'),
+(177,'944067',1,NULL,33305,'2025-11-25 16:08:16',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:08:17','2025-11-25 15:08:17'),
+(178,'944067',1,NULL,33305,'2025-11-25 16:08:16',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:08:17','2025-11-25 15:08:17'),
+(179,'944067',1,NULL,33305,'2025-11-25 16:08:19',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:08:20','2025-11-25 15:08:20'),
+(180,'944067',1,NULL,33305,'2025-11-25 16:08:19',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:08:20','2025-11-25 15:08:20'),
+(181,'944067',1,NULL,33305,'2025-11-25 16:08:22',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:08:23','2025-11-25 15:08:23'),
+(182,'944067',1,NULL,33305,'2025-11-25 16:08:22',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:08:23','2025-11-25 15:08:23'),
+(183,'944067',1,NULL,65762,'2025-11-25 16:11:19',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:11:19','2025-11-25 15:11:19'),
+(184,'944067',1,NULL,65762,'2025-11-25 16:11:19',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:11:19','2025-11-25 15:11:19'),
+(185,'944067',1,NULL,65762,'2025-11-25 16:11:22',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:11:23','2025-11-25 15:11:23'),
+(186,'944067',1,NULL,65762,'2025-11-25 16:11:22',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:11:23','2025-11-25 15:11:23'),
+(187,'944067',1,NULL,65762,'2025-11-25 16:11:25',807.0000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:11:26','2025-11-25 15:11:26'),
+(188,'944067',1,NULL,65762,'2025-11-25 16:11:25',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-25 15:11:26','2025-11-25 15:11:26'),
+(189,'944067',1,NULL,65762,'2025-11-25 16:11:46',807.0000,'Sample.Periodic','Raw','Energy.Active.Import.Register','Wh','2025-11-25 15:11:47','2025-11-25 15:11:47'),
+(190,'944067',1,NULL,65762,'2025-11-25 16:11:46',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-25 15:11:47','2025-11-25 15:11:47'),
+(191,'944067',1,NULL,51,'2025-11-27 15:29:46',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 14:29:47','2025-11-27 14:29:47'),
+(192,'944067',1,NULL,51,'2025-11-27 15:29:49',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 14:29:50','2025-11-27 14:29:50'),
+(193,'944067',1,NULL,52,'2025-11-27 15:35:16',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 14:35:17','2025-11-27 14:35:17'),
+(194,'944067',1,NULL,52,'2025-11-27 15:35:20',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 14:35:21','2025-11-27 14:35:21'),
+(195,'944067',1,NULL,60,'2025-11-27 15:44:20',2121.6000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 15:02:53','2025-11-27 15:02:53'),
+(196,'944067',1,NULL,60,'2025-11-27 15:45:50',1672.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-27 15:02:53','2025-11-27 15:02:53'),
+(197,'944067',1,NULL,60,'2025-11-27 15:50:50',1333.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-27 15:02:54','2025-11-27 15:02:54'),
+(198,'944067',1,NULL,60,'2025-11-27 15:55:50',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-27 15:02:54','2025-11-27 15:02:54'),
+(199,'944067',1,NULL,60,'2025-11-27 16:00:50',0.0000,'Sample.Periodic','Raw','Power.Active.Import','W','2025-11-27 15:02:54','2025-11-27 15:02:54'),
+(200,'944067',1,NULL,61,'2025-11-27 16:09:04',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 15:09:05','2025-11-27 15:09:05'),
+(201,'944067',1,NULL,61,'2025-11-27 16:09:07',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 15:09:08','2025-11-27 15:09:08'),
+(202,'944067',1,NULL,66024,'2025-11-27 16:31:51',1090.7000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-27 15:31:52','2025-11-27 15:31:52'),
+(203,'944067',1,NULL,66024,'2025-11-27 16:31:51',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 15:31:52','2025-11-27 15:31:52'),
+(204,'944067',1,NULL,66024,'2025-11-27 16:31:54',1090.7000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-27 15:31:55','2025-11-27 15:31:55'),
+(205,'944067',1,NULL,66024,'2025-11-27 16:31:54',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 15:31:55','2025-11-27 15:31:55'),
+(206,'944067',1,NULL,66024,'2025-11-27 16:31:56',1090.7000,'Trigger','Raw','Energy.Active.Import.Register','Wh','2025-11-27 15:31:57','2025-11-27 15:31:57'),
+(207,'944067',1,NULL,66024,'2025-11-27 16:31:56',0.0000,'Trigger','Raw','Power.Active.Import','W','2025-11-27 15:31:57','2025-11-27 15:31:57');
+/*!40000 ALTER TABLE `meter_values` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `notifications`
+--
+
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `status` enum('pending','sent','failed') DEFAULT 'pending',
+  `created_at` datetime DEFAULT current_timestamp(),
+  `sent_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notifications`
+--
+
+LOCK TABLES `notifications` WRITE;
+/*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
+/*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ocpp_charging_sessions`
+--
+
+DROP TABLE IF EXISTS `ocpp_charging_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ocpp_charging_sessions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_number` varchar(100) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `connector_id` int(11) DEFAULT 1,
+  `start_time` timestamp NULL DEFAULT current_timestamp(),
+  `end_time` timestamp NULL DEFAULT NULL,
+  `total_energy_kwh` decimal(10,2) DEFAULT NULL,
+  `max_power_kw` decimal(10,2) DEFAULT NULL,
+  `cost` decimal(10,2) DEFAULT NULL,
+  `status` enum('active','completed','failed') DEFAULT 'active',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `idx_serial_user` (`serial_number`,`user_id`),
+  KEY `idx_start_time` (`start_time`),
+  CONSTRAINT `ocpp_charging_sessions_ibfk_1` FOREIGN KEY (`serial_number`) REFERENCES `chargers_ocpp` (`serial_number`) ON DELETE CASCADE,
+  CONSTRAINT `ocpp_charging_sessions_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ocpp_charging_sessions`
+--
+
+LOCK TABLES `ocpp_charging_sessions` WRITE;
+/*!40000 ALTER TABLE `ocpp_charging_sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ocpp_charging_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ocpp_commands`
+--
+
+DROP TABLE IF EXISTS `ocpp_commands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ocpp_commands` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_number` varchar(100) NOT NULL,
+  `command_type` varchar(50) NOT NULL,
+  `payload` longtext DEFAULT NULL,
+  `status` enum('pending','sent','completed','failed') DEFAULT 'pending',
+  `result` longtext DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `executed_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_serial_status` (`serial_number`,`status`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `ocpp_commands_ibfk_1` FOREIGN KEY (`serial_number`) REFERENCES `chargers_ocpp` (`serial_number`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ocpp_commands`
+--
+
+LOCK TABLES `ocpp_commands` WRITE;
+/*!40000 ALTER TABLE `ocpp_commands` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ocpp_commands` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ocpp_events`
+--
+
+DROP TABLE IF EXISTS `ocpp_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ocpp_events` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_number` varchar(100) NOT NULL,
+  `event_type` varchar(100) NOT NULL,
+  `event_data` longtext DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_serial_type` (`serial_number`,`event_type`),
+  KEY `idx_created_at` (`created_at`),
+  CONSTRAINT `ocpp_events_ibfk_1` FOREIGN KEY (`serial_number`) REFERENCES `chargers_ocpp` (`serial_number`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ocpp_events`
+--
+
+LOCK TABLES `ocpp_events` WRITE;
+/*!40000 ALTER TABLE `ocpp_events` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ocpp_events` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ocpp_servers`
+--
+
+DROP TABLE IF EXISTS `ocpp_servers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ocpp_servers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `url` varchar(500) NOT NULL,
+  `charge_point_identity` varchar(100) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ocpp_servers`
+--
+
+LOCK TABLES `ocpp_servers` WRITE;
+/*!40000 ALTER TABLE `ocpp_servers` DISABLE KEYS */;
+INSERT INTO `ocpp_servers` (`id`, `name`, `url`, `charge_point_identity`, `password`, `created_at`, `updated_at`) VALUES (7,'Electromaps','ws://manager.electromaps.com:8080/ocpp/websocket/CentralS','50','','2025-10-27 11:53:38','2025-10-27 11:53:38'),
+(8,'Monta','wss://ocpp.monta.app','50','','2025-10-27 11:53:38','2025-10-27 11:53:38'),
+(9,'Efuel','wss://ocpp.efuel.se','50','','2025-10-27 11:53:38','2025-10-27 11:53:38'),
+(10,'DKG Solutions','ws://server.dkgsolutions.es:5010','50','','2025-10-27 11:53:38','2025-10-27 11:53:38');
+/*!40000 ALTER TABLE `ocpp_servers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payment_methods`
+--
+
+DROP TABLE IF EXISTS `payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_methods` (
+  `id` varchar(50) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `type` enum('card','paypal','applepay','googlepay') NOT NULL,
+  `card_brand` varchar(20) DEFAULT NULL,
+  `last4` varchar(4) DEFAULT NULL,
+  `exp_month` int(2) DEFAULT NULL,
+  `exp_year` int(4) DEFAULT NULL,
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `stripe_payment_method_id` varchar(100) DEFAULT NULL,
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadata`)),
+  `status` enum('active','inactive','requires_action') DEFAULT 'active',
+  `last_used_at` datetime DEFAULT NULL,
+  `error_message` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stripe_payment_method_id` (`stripe_payment_method_id`),
+  KEY `idx_payment_methods_user` (`user_id`),
+  KEY `idx_payment_methods_status` (`status`),
+  CONSTRAINT `payment_methods_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payment_methods`
+--
+
+LOCK TABLES `payment_methods` WRITE;
+/*!40000 ALTER TABLE `payment_methods` DISABLE KEYS */;
+INSERT INTO `payment_methods` (`id`, `user_id`, `type`, `card_brand`, `last4`, `exp_month`, `exp_year`, `is_default`, `created_at`, `stripe_payment_method_id`, `metadata`, `status`, `last_used_at`, `error_message`) VALUES ('pm_1Sev3rRsidlM9v3kJ8Uq3cwp',62,'card','visa','4242',12,2028,1,'2025-12-16 11:00:57',NULL,NULL,'active',NULL,NULL),
+('pm_1Sewb7RsidlM9v3k1HUk5Av9',62,'card','mastercard','4444',4,2028,0,'2025-12-16 12:39:24',NULL,NULL,'active',NULL,NULL),
+('pm_1SfHhiRsidlM9v3kusLrj0ZV',62,'card','mastercard','4444',2,2028,0,'2025-12-17 11:11:35',NULL,NULL,'active',NULL,NULL);
+/*!40000 ALTER TABLE `payment_methods` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payment_preauths`
+--
+
+DROP TABLE IF EXISTS `payment_preauths`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_preauths` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `payment_intent_id` varchar(100) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'pending',
+  `captured_amount` decimal(10,2) DEFAULT NULL,
+  `refunded_amount` decimal(10,2) DEFAULT NULL,
+  `refunded_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `payment_preauths_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payment_preauths`
+--
+
+LOCK TABLES `payment_preauths` WRITE;
+/*!40000 ALTER TABLE `payment_preauths` DISABLE KEYS */;
+INSERT INTO `payment_preauths` (`id`, `user_id`, `payment_intent_id`, `amount`, `status`, `captured_amount`, `refunded_amount`, `refunded_at`, `created_at`) VALUES (1,62,'pi_3SevS3RsidlM9v3k0dKq5hvL',20.00,'pending',NULL,NULL,NULL,'2025-12-16 11:25:55'),
+(2,62,'pi_3SevpHRsidlM9v3k1aiSY6bg',20.00,'pending',NULL,NULL,NULL,'2025-12-16 11:49:55'),
+(3,62,'pi_3SevyiRsidlM9v3k0VHdz7h6',20.00,'pending',NULL,NULL,NULL,'2025-12-16 11:59:41'),
+(4,62,'pi_3SewPeRsidlM9v3k0t7ZZilO',20.00,'pending',NULL,NULL,NULL,'2025-12-16 12:27:31'),
+(5,62,'pi_3SewdyRsidlM9v3k1SMcaZDx',15.00,'pending',NULL,NULL,NULL,'2025-12-16 12:42:19'),
+(6,62,'pi_3SewedRsidlM9v3k1e7RN5C8',15.00,'pending',NULL,NULL,NULL,'2025-12-16 12:43:00'),
+(7,62,'pi_3SewgaRsidlM9v3k0tsFUhMU',15.00,'pending',NULL,NULL,NULL,'2025-12-16 12:45:00'),
+(8,62,'pi_3SewiKRsidlM9v3k0yvVEU1C',15.00,'pending',NULL,NULL,NULL,'2025-12-16 12:46:48'),
+(9,62,'pi_3SewlRRsidlM9v3k0YKiZox7',15.00,'pending',NULL,NULL,NULL,'2025-12-16 12:50:01'),
+(10,62,'pi_3Sewr8RsidlM9v3k0LQfax2P',20.00,'pending',NULL,NULL,NULL,'2025-12-16 12:55:54'),
+(11,62,'pi_3SewwFRsidlM9v3k1uObFKhG',20.00,'pending',NULL,NULL,NULL,'2025-12-16 13:01:12'),
+(12,62,'pi_3Sex66RsidlM9v3k1HNMMOzo',20.00,'pending',NULL,NULL,NULL,'2025-12-16 13:11:23'),
+(13,62,'pi_3Sex6SRsidlM9v3k0uCIdZXJ',20.00,'pending',NULL,NULL,NULL,'2025-12-16 13:11:45'),
+(14,62,'pi_3Sf04LRsidlM9v3k1kjwE1Pb',15.00,'pending',NULL,NULL,NULL,'2025-12-16 16:21:46'),
+(15,62,'pi_3Sf0TSRsidlM9v3k1b3OonXF',15.00,'pending',NULL,NULL,NULL,'2025-12-16 16:47:43');
+/*!40000 ALTER TABLE `payment_preauths` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payments`
+--
+
+DROP TABLE IF EXISTS `payments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `charger_id` int(11) NOT NULL,
+  `session_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `currency` varchar(3) NOT NULL DEFAULT 'EUR',
+  `status` enum('pending','completed','failed','refunded') NOT NULL DEFAULT 'pending',
+  `payment_method_id` varchar(50) NOT NULL,
+  `transaction_id` varchar(100) NOT NULL,
+  `invoice_number` varchar(50) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `metadata` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`metadata`)),
+  `error_message` varchar(255) DEFAULT NULL,
+  `refund_id` varchar(100) DEFAULT NULL,
+  `refund_amount` decimal(10,2) DEFAULT NULL,
+  `refund_reason` varchar(255) DEFAULT NULL,
+  `payment_intent_id` varchar(100) DEFAULT NULL,
+  `receipt_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `session_id` (`session_id`),
+  KEY `idx_payments_user` (`user_id`),
+  KEY `idx_payments_charger` (`charger_id`),
+  KEY `idx_payments_method` (`payment_method_id`),
+  KEY `idx_payments_status_date` (`status`,`created_at`),
+  CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `payments_ibfk_2` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`),
+  CONSTRAINT `payments_ibfk_3` FOREIGN KEY (`session_id`) REFERENCES `charging_sessions` (`id`),
+  CONSTRAINT `payments_ibfk_4` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_methods` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payments`
+--
+
+LOCK TABLES `payments` WRITE;
+/*!40000 ALTER TABLE `payments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `payments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `primary_devices`
+--
+
+DROP TABLE IF EXISTS `primary_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `primary_devices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `action_type` varchar(100) DEFAULT NULL,
+  `id_user` int(11) DEFAULT NULL,
+  `id_device` int(11) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('0','1','2','3') DEFAULT '0',
+  `executed_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `primary_devices`
+--
+
+LOCK TABLES `primary_devices` WRITE;
+/*!40000 ALTER TABLE `primary_devices` DISABLE KEYS */;
+INSERT INTO `primary_devices` (`id`, `action_type`, `id_user`, `id_device`, `description`, `status`, `executed_at`) VALUES (113,'init',62,43,'Cargador inicializado','0','2025-09-12 11:22:56'),
+(122,'init',62,44,'Cargador inicializado','0','2025-10-16 09:32:41'),
+(123,'init',62,60,'Cargador inicializado','0','2025-10-22 17:38:19'),
+(124,'init',62,62,'Cargador inicializado','0','2025-10-23 11:17:45'),
+(125,'init',62,119,'Cargador inicializado','0','2025-11-10 11:10:07'),
+(126,'init',62,136,'Cargador inicializado','0','2025-11-27 10:29:38'),
+(127,'init',62,136,'Cargador inicializado','0','2025-11-27 10:29:38'),
+(128,'init',62,138,'Cargador inicializado','0','2025-11-27 11:04:22'),
+(129,'init',62,139,'Cargador inicializado','0','2025-12-05 11:14:43'),
+(130,'init',62,140,'Cargador inicializado','0','2025-12-05 11:32:32'),
+(131,'init',62,140,'Cargador inicializado','0','2025-12-05 11:32:32'),
+(132,'init',62,141,'Cargador inicializado','0','2025-12-05 11:33:12'),
+(133,'init',62,141,'Cargador inicializado','0','2025-12-05 11:33:12'),
+(134,'init',62,142,'Cargador inicializado','0','2025-12-09 11:16:34'),
+(135,'init',62,143,'Cargador inicializado','0','2025-12-09 11:17:33'),
+(136,'init',62,144,'Cargador inicializado','0','2025-12-09 11:19:08'),
+(137,'init',62,145,'Cargador inicializado','0','2025-12-09 12:47:06'),
+(138,'init',62,146,'Cargador inicializado','0','2025-12-16 15:35:04'),
+(139,'init',62,146,'Cargador inicializado','0','2025-12-16 15:35:04');
+/*!40000 ALTER TABLE `primary_devices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `secondary_devices`
+--
+
+DROP TABLE IF EXISTS `secondary_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `secondary_devices` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `device_status` tinyint(1) DEFAULT 0,
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `charger_id` (`charger_id`),
+  KEY `idx_secondary_devices_charger` (`charger_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `secondary_devices`
+--
+
+LOCK TABLES `secondary_devices` WRITE;
+/*!40000 ALTER TABLE `secondary_devices` DISABLE KEYS */;
+INSERT INTO `secondary_devices` (`id`, `charger_id`, `device_status`, `last_updated`) VALUES (1,30,1,'2025-09-10 14:23:06'),
+(2,31,0,'2025-09-11 08:45:36'),
+(3,32,0,'2025-09-11 09:58:32'),
+(4,33,0,'2025-09-11 10:12:17'),
+(5,34,0,'2025-09-11 10:25:06'),
+(6,35,0,'2025-09-11 10:35:01'),
+(7,36,0,'2025-09-11 11:21:01'),
+(8,37,0,'2025-09-11 11:39:47'),
+(9,38,0,'2025-09-11 11:42:41'),
+(10,39,0,'2025-09-11 11:57:44'),
+(11,40,0,'2025-09-11 11:58:15'),
+(12,41,0,'2025-09-11 11:58:25'),
+(13,42,0,'2025-09-11 13:26:42'),
+(14,43,0,'2025-09-12 09:22:56'),
+(15,44,0,'2025-10-16 07:32:41'),
+(16,45,0,'2025-10-16 08:46:27'),
+(17,46,0,'2025-10-16 13:56:32'),
+(18,47,0,'2025-10-16 14:07:56'),
+(19,48,0,'2025-10-16 15:04:26'),
+(20,49,0,'2025-10-21 10:57:57'),
+(21,50,0,'2025-10-22 07:43:33'),
+(22,51,0,'2025-10-22 07:56:35'),
+(23,52,0,'2025-10-22 09:08:36'),
+(24,53,0,'2025-10-22 09:10:46'),
+(25,54,0,'2025-10-22 09:16:32'),
+(26,55,0,'2025-10-22 10:41:20'),
+(27,56,0,'2025-10-22 13:05:58'),
+(28,57,0,'2025-10-22 13:57:46'),
+(29,58,0,'2025-10-22 15:33:49'),
+(30,59,0,'2025-10-22 15:36:56'),
+(31,60,0,'2025-10-22 15:38:19'),
+(32,61,0,'2025-10-22 15:54:29'),
+(33,62,0,'2025-10-23 09:17:45'),
+(34,63,0,'2025-10-23 09:18:16'),
+(35,64,0,'2025-10-24 08:41:30'),
+(36,65,0,'2025-10-27 11:04:39'),
+(37,66,0,'2025-10-27 12:55:33'),
+(38,67,0,'2025-10-28 09:53:55'),
+(39,68,0,'2025-10-28 11:07:23'),
+(40,69,0,'2025-10-28 12:48:26'),
+(41,70,0,'2025-10-28 15:09:49'),
+(42,71,0,'2025-10-29 10:04:19'),
+(43,72,0,'2025-10-31 08:28:57'),
+(44,73,0,'2025-10-31 09:50:45'),
+(45,74,0,'2025-10-31 10:24:56'),
+(46,75,0,'2025-10-31 10:37:50'),
+(47,76,0,'2025-10-31 11:42:43'),
+(48,77,0,'2025-10-31 11:44:36'),
+(49,78,0,'2025-10-31 11:45:28'),
+(50,79,0,'2025-10-31 11:46:51'),
+(51,80,0,'2025-11-03 09:05:22'),
+(52,81,0,'2025-11-03 09:05:22'),
+(53,82,0,'2025-11-03 09:06:40'),
+(54,83,0,'2025-11-03 09:06:40'),
+(55,84,0,'2025-11-03 09:08:44'),
+(56,85,0,'2025-11-03 09:08:44'),
+(57,86,0,'2025-11-03 11:02:03'),
+(58,87,0,'2025-11-03 11:02:03'),
+(59,88,0,'2025-11-03 11:57:01'),
+(60,89,0,'2025-11-03 11:57:01'),
+(61,90,0,'2025-11-03 12:04:16'),
+(62,91,0,'2025-11-03 12:05:37'),
+(63,92,0,'2025-11-03 12:17:57'),
+(64,93,0,'2025-11-03 12:17:57'),
+(65,94,0,'2025-11-03 14:33:24'),
+(66,95,0,'2025-11-03 14:33:24'),
+(67,96,0,'2025-11-03 14:36:06'),
+(68,97,0,'2025-11-03 14:36:06'),
+(69,98,0,'2025-11-03 15:21:23'),
+(70,99,0,'2025-11-03 15:21:23'),
+(71,100,0,'2025-11-04 09:07:25'),
+(72,101,0,'2025-11-04 09:07:25'),
+(73,102,0,'2025-11-04 10:57:59'),
+(74,103,0,'2025-11-04 10:57:59'),
+(75,104,0,'2025-11-04 11:58:43'),
+(76,105,0,'2025-11-04 11:58:44'),
+(77,106,0,'2025-11-04 12:16:21'),
+(78,107,0,'2025-11-04 14:24:32'),
+(79,108,0,'2025-11-04 14:26:34'),
+(80,109,0,'2025-11-04 14:49:28'),
+(81,110,0,'2025-11-04 14:55:08'),
+(82,111,0,'2025-11-04 15:03:41'),
+(83,112,0,'2025-11-05 14:08:48'),
+(84,113,0,'2025-11-07 08:30:46'),
+(85,114,0,'2025-11-07 09:25:19'),
+(86,115,0,'2025-11-07 09:25:19'),
+(87,116,0,'2025-11-07 09:37:55'),
+(88,117,0,'2025-11-07 09:37:55'),
+(89,118,0,'2025-11-07 10:44:45'),
+(90,119,0,'2025-11-10 10:10:07'),
+(91,120,0,'2025-11-10 12:08:54'),
+(92,121,0,'2025-11-10 12:08:54'),
+(93,122,0,'2025-11-10 12:52:05'),
+(94,123,0,'2025-11-10 12:52:05'),
+(95,124,0,'2025-11-11 09:57:43'),
+(96,125,0,'2025-11-11 10:00:06'),
+(97,126,0,'2025-11-11 10:00:06'),
+(98,127,0,'2025-11-18 10:43:48'),
+(99,128,0,'2025-11-18 16:11:31'),
+(100,129,0,'2025-11-19 11:27:00'),
+(101,130,0,'2025-11-19 11:45:56'),
+(103,131,0,'2025-11-19 16:02:32'),
+(105,132,0,'2025-11-20 09:55:44'),
+(106,133,0,'2025-11-20 10:47:58'),
+(107,134,0,'2025-11-20 11:21:05'),
+(109,135,0,'2025-11-27 09:27:30'),
+(110,136,0,'2025-11-27 09:29:38'),
+(111,137,0,'2025-11-27 09:52:53'),
+(112,138,0,'2025-11-27 10:04:22'),
+(113,139,0,'2025-12-05 10:14:43'),
+(114,140,0,'2025-12-05 10:32:32'),
+(115,141,0,'2025-12-05 10:33:12'),
+(116,142,0,'2025-12-09 10:16:34'),
+(117,143,0,'2025-12-09 10:17:33'),
+(118,144,0,'2025-12-09 10:19:08'),
+(119,145,0,'2025-12-09 11:47:06'),
+(120,146,0,'2025-12-16 14:35:04');
+/*!40000 ALTER TABLE `secondary_devices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `transactions`
+--
+
+DROP TABLE IF EXISTS `transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `transactions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `charger_id` int(11) NOT NULL,
+  `connector_id` int(11) NOT NULL,
+  `id_tag` varchar(255) DEFAULT NULL,
+  `start_timestamp` datetime NOT NULL,
+  `end_timestamp` datetime DEFAULT NULL,
+  `meter_start` int(11) NOT NULL,
+  `meter_stop` int(11) DEFAULT NULL,
+  `status` enum('active','completed','stopped') DEFAULT 'active',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `charger_id` (`charger_id`),
+  CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`charger_id`) REFERENCES `chargers` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `transactions`
+--
+
+LOCK TABLES `transactions` WRITE;
+/*!40000 ALTER TABLE `transactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_devices`
+--
+
+DROP TABLE IF EXISTS `user_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_devices` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `device_token` varchar(255) NOT NULL,
+  `platform` enum('ios','android') NOT NULL,
+  `device_id` varchar(255) NOT NULL,
+  `app_version` varchar(50) DEFAULT NULL,
+  `os_version` varchar(50) DEFAULT NULL,
+  `last_active` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_device_user` (`user_id`,`device_id`),
+  CONSTRAINT `user_devices_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_devices`
+--
+
+LOCK TABLES `user_devices` WRITE;
+/*!40000 ALTER TABLE `user_devices` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_devices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `password_hash` varchar(255) DEFAULT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `avatar_url` varchar(255) DEFAULT NULL,
+  `auth_provider` enum('local','google','apple') NOT NULL DEFAULT 'local',
+  `provider_id` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `firebase_uid` varchar(255) DEFAULT NULL,
+  `stripe_customer_id` varchar(50) DEFAULT NULL,
+  `is_guest` tinyint(1) NOT NULL DEFAULT 0,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expires` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` (`id`, `email`, `password_hash`, `first_name`, `last_name`, `phone`, `avatar_url`, `auth_provider`, `provider_id`, `created_at`, `updated_at`, `is_active`, `firebase_uid`, `stripe_customer_id`, `is_guest`, `reset_token`, `reset_token_expires`) VALUES (60,'info@moneyguard.es','','Tecnico primeroqqw','tecnico1aa',NULL,'https://lh3.googleusercontent.com/a/ACg8ocKNFM9BC7L_DF5_NTaytoxA3GCxxCMvYY5nP-_lU-8ZFBGVLNk=s96-c','',NULL,'2025-06-02 11:25:06','2025-07-03 11:00:03',1,'ZGyOVmO0c2NvOtwNdAWzmd9Lbu13',NULL,0,NULL,NULL),
+(62,'brayangarod@gmail.com','','brayan ali','garcia','01020300808',NULL,'local',NULL,'2025-06-02 12:00:10','2025-12-17 10:58:00',1,'sMNa8BbDoBRecjrBuVLmhq7kQmH2','cus_Tc9M1b00r0s2no',0,'de5eeb14-4545-40a3-84a8-c7bb0c23dea3','2025-10-01 10:41:09'),
+(87,'brayangarod1@gmail.com','$2b$10$02PKv9NoteFx9RQph0bxLu1VJI4xlhqzAeHjoRv.5leB2hT1lGoki','Brayan','Garcia',NULL,'https://lh3.googleusercontent.com/a/ACg8ocKK256p7f1ygltfiOZZTSB2xTSm43smSDE0T0yEWgIDr6Y3UQ=s96-c','local',NULL,'2025-06-13 09:46:28','2025-09-03 17:09:36',1,'nENqnptS4MMHWs0441WckOMzNZo2',NULL,1,'b5a3745c-1920-4d04-996c-f9620bb85400','2025-09-03 18:09:36'),
+(89,'kevin@dkg.com','','kevin','',NULL,NULL,'local',NULL,'2025-07-03 11:22:06','2025-07-03 11:26:57',1,'1Jen7Q4RhRhq54cqbhtKYJZm4bA3',NULL,0,NULL,NULL),
+(94,'ventas@electroprime.es','','prueba1','123456','341242342512',NULL,'',NULL,'2025-09-04 15:27:07','2025-09-09 12:59:37',1,'EazzFAk3qVdUZv0uzShfXuWDtt63',NULL,1,NULL,NULL),
+(95,'test@test.com',NULL,'Test','',NULL,NULL,'google',NULL,'2025-12-03 10:54:28','2025-12-03 11:23:51',1,'q0KgEmQ0VrNNMy0fjyqSiZ7vDp23',NULL,0,'225e425a-a2a0-4f49-a39b-72fcfd15a8b6','2025-12-03 12:23:51'),
+(98,'cargadoresdkg@gmail.com',NULL,'aaaa','aaa',NULL,NULL,'google',NULL,'2025-12-05 15:26:23','2025-12-16 14:07:23',1,'8xezHDn5vkRcRv8oA5FDbhPG5rY2',NULL,1,NULL,NULL);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-12-17 11:35:50

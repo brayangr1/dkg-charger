@@ -1,0 +1,145 @@
+.payment-success-screen {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-top: var(--spacing-3xl);
+}
+
+.success-content {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+/* Success Icon */
+.success-icon {
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    justify-content: center;
+}
+
+.checkmark-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.5s ease-out;
+}
+
+.checkmark {
+    font-size: 60px;
+    color: white;
+    font-weight: bold;
+    animation: checkmarkPop 0.3s ease-out 0.3s backwards;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes checkmarkPop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Content */
+.success-content h1 {
+    font-size: 32px;
+    color: var(--color-success);
+    margin: 0 0 var(--spacing-md);
+}
+
+.success-message {
+    font-size: 18px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+}
+
+.success-message strong {
+    color: var(--color-primary);
+    font-size: 24px;
+}
+
+/* Transaction Info */
+.transaction-info {
+    background: var(--color-gray-50);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-sm) 0;
+    font-size: 14px;
+}
+
+.info-row .label {
+    color: var(--color-text-secondary);
+    font-weight: 600;
+}
+
+.info-row .value {
+    color: var(--color-text-primary);
+    font-family: monospace;
+}
+
+/* Actions */
+.success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Dark Mode */
+[data-theme="dark"] .transaction-info {
+    background: var(--color-gray-800);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkmark-circle {
+        width: 100px;
+        height: 100px;
+    }
+
+    .checkmark {
+        font-size: 50px;
+    }
+
+    .success-content h1 {
+        font-size: 28px;
+    }
+
+    .success-message {
+        font-size: 16px;
+    }
+
+    .success-message strong {
+        font-size: 20px;
+    }
+}

@@ -1,0 +1,88 @@
+<VirtualHost *:80>
+    ServerName server.dkgsolutions.es
+    ServerAdmin webmaster@dkgsolutions.es
+    
+    # Deshabilitar DocumentRoot para evitar conflicto
+    DocumentRoot /var/www/server/
+    
+    # Habilitar módulos necesarios
+    ProxyPreserveHost On
+    ProxyRequests Off
+    
+    # Redirigir API calls a Node.js
+    ProxyPass /api http://localhost:5010/api
+    ProxyPassReverse /api http://localhost:5010/api
+    
+    # Redirigir todo el tráfico a Node.js (opcional)
+    ProxyPass / http://localhost:5010/
+    ProxyPassReverse / http://localhost:5010/
+    
+    ErrorLog ${APACHE_LOG_DIR}/server.dkgsolutions.es_error.log
+    CustomLog ${APACHE_LOG_DIR}/server.dkgsolutions.es_access.log combined
+    RewriteCond %{SERVER_NAME} =server.dkgsolutions.es
+    RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+</VirtualHost>
+
+<IfModule mod_ssl.c>
+<VirtualHost *:443>    
+    ServerAdmin webmaster@dkgsolutions.es
+    DocumentRoot /var/www/server/
+    ServerName server.dkgsolutions.es
+    ServerAlias server.dkgsolutions.es
+    
+    # ✅ HABILITAR MOD_REWRITE Y MOD_PROXY
+    RewriteEngine On
+    ProxyRequests Off
+    ProxyPreserveHost On
+    
+    # ✅ CONFIGURACIÓN WEBSOCKET - CORRECTO
+    # Detectar WebSocket upgrade request
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} Upgrade [NC]
+    
+    # Redirigir WebSocket /ws al servidor Node.js
+    RewriteRule ^/ws(.*)$ ws://localhost:5010/ws$1 [P,L]
+    
+    # Configurar proxy para WebSocket /ws
+    <IfModule mod_proxy_wstunnel.c>
+        ProxyPass /ws ws://localhost:5010/ws
+        ProxyPassReverse /ws ws://localhost:5010/ws
+        # Headers necesarios para WebSocket
+        RewriteEngine On
+        RewriteCond %{HTTP:Upgrade} websocket [NC]
+        RewriteCond %{HTTP:Connection} Upgrade [NC]
+        RewriteRule ^/ws(.*)$ ws://localhost:5010$0 [P,L]
+    </IfModule>
+    
+    # Configuración alternativa de WebSocket para OCPP
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} Upgrade [NC]
+    RewriteRule ^/ocpp(.*)$ ws://localhost:8887/ocpp$1 [P,L]
+    
+    <IfModule mod_proxy_wstunnel.c>
+        ProxyPass /ocpp ws://localhost:8887/ocpp
+        ProxyPassReverse /ocpp ws://localhost:8887/ocpp
+    </IfModule>
+
+    # Redirigir API calls a Node.js
+    ProxyPass /api http://localhost:5010/api
+    ProxyPassReverse /api http://localhost:5010/api
+    
+    # Redirigir todo el tráfico a Node.js
+    ProxyPass / http://localhost:5010/
+    ProxyPassReverse / http://localhost:5010/
+    
+    # Configuracion del directorio principal
+    <Directory /var/www/server/>
+        Options -Indexes +FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+        DirectoryIndex index.html index.php
+    </Directory>
+
+    Include /etc/letsencrypt/options-ssl-apache.conf
+    SSLCertificateFile /etc/letsencrypt/live/electroprime.es/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/electroprime.es/privkey.pem
+
+</VirtualHost>
+</IfModule>

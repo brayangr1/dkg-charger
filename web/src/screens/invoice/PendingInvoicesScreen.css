@@ -1,0 +1,156 @@
+.pending-invoices-container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.pending-invoices-header {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pending-invoices-header h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.refresh-button {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.refresh-button:hover {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.invoices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.invoice-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.invoice-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.invoice-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.invoice-date {
+    font-size: 14px;
+    color: #888;
+}
+
+.invoice-amount {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e53935;
+    /* Red for pending/due */
+}
+
+.invoice-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-view {
+    background-color: #f3e5f5;
+    color: #9c27b0;
+    border: 1px solid #9c27b0;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-view:hover {
+    background-color: #e1bee7;
+}
+
+.btn-pay {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-pay:hover {
+    background-color: #43a047;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #666;
+}
+
+.pay-all-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-pay-all {
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s;
+}
+
+.btn-pay-all:hover {
+    background-color: #1976d2;
+}

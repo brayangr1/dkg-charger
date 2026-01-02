@@ -1,0 +1,236 @@
+.my-chargers-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.my-chargers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.my-chargers-header h1 {
+    margin: 0;
+    font-size: 32px;
+    color: var(--color-text-primary);
+}
+
+.add-charger-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 20px;
+}
+
+.add-charger-button:hover {
+    background-color: #45a049;
+}
+
+.chargers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.charger-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-md);
+    cursor: pointer;
+    transition: transform var(--transition-fast);
+    position: relative;
+    border: 1px solid #eee;
+}
+
+.charger-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.charger-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.charger-icon {
+    font-size: 24px;
+    margin-right: var(--spacing-sm);
+}
+
+.charger-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    flex: 1;
+}
+
+.charger-model {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.charger-status {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.charger-actions {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    color: var(--color-error);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 14px;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.delete-button:hover {
+    background-color: #ffebee;
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xxl);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-xl);
+    max-width: 600px;
+    margin: var(--spacing-xxl) auto;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.empty-state h2 {
+    margin: 0 0 var(--spacing-sm);
+    color: var(--color-text-primary);
+}
+
+.empty-state p {
+    margin: 0 0 var(--spacing-xl);
+    color: var(--color-text-secondary);
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: var(--spacing-md);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chargers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .my-chargers-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+}
+
+/* GRID */
+.chargers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+    padding-bottom: 40px;
+}
+
+/* CARD MODERNA */
+.modern-card {
+    position: relative;
+    padding: 28px;
+    border-radius: 22px !important;
+    background: rgba(255, 255, 255, 0.55) !important;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+
+    transition: all 0.25s ease;
+}
+
+.modern-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* BARRITA LATERAL DE ESTADO */
+.card-status-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 6px;
+    border-radius: 10px 0 0 10px;
+}
+
+/* TOP CARD */
+.card-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.charger-icon-big {
+    font-size: 42px;
+    color: #555;
+    opacity: 0.9;
+}
+
+/* TEXTOS */
+.charger-name-modern {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #222;
+}
+
+.charger-model-modern {
+    margin-top: 4px;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* STATUS PILL MODERNO */
+.status-pill {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 40px;
+    border: 2px solid;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background: rgba(255, 255, 255, 0.5);
+}

@@ -1,0 +1,45 @@
+.card {
+    background: white;
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.card-default {
+    box-shadow: var(--shadow-sm);
+}
+
+.card-elevated {
+    box-shadow: var(--shadow-lg);
+}
+
+.card-outlined {
+    border: 1px solid var(--color-border);
+    box-shadow: none;
+}
+
+.card-padding-sm {
+    padding: var(--spacing-md);
+}
+
+.card-padding-md {
+    padding: var(--spacing-lg);
+}
+
+.card-padding-lg {
+    padding: var(--spacing-xl);
+}
+
+.card-hoverable {
+    cursor: pointer;
+}
+
+.card-hoverable:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Dark mode support */
+[data-theme="dark"] .card {
+    background: var(--color-gray-800);
+    border-color: var(--color-gray-700);
+}

@@ -1,0 +1,217 @@
+.add-charger-screen {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.add-charger-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-right: 16px;
+}
+
+.back-button:hover {
+    background-color: #f5f5f5;
+}
+
+.add-charger-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.add-charger-form {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.help-text {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.error-message {
+    background-color: #fee;
+    color: #c33;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border-left: 4px solid #c33;
+}
+
+.instructions {
+    padding: 24px;
+}
+
+.instructions h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.instructions ol {
+    margin-left: 20px;
+    margin-bottom: 16px;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.note {
+    background-color: #f9f9f9;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #4a90e2;
+    color: #555;
+    font-size: 14px;
+}
+
+.note strong {
+    color: #333;
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.success-overlay {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.success-modal {
+    max-width: 400px;
+    border: 2px solid #4CAF50;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.success-header {
+    background-color: #4CAF50;
+    color: white;
+    border-bottom: none;
+}
+
+.success-header h2 {
+    margin: 0;
+    color: white;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.modal-close:hover {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body p {
+    margin: 0 0 20px 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .add-charger-screen {
+        padding: 16px;
+    }
+    
+    .add-charger-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .back-button {
+        margin-right: 0;
+        align-self: flex-start;
+    }
+    
+    .add-charger-header h1 {
+        font-size: 20px;
+    }
+    
+    .add-charger-form,
+    .instructions {
+        padding: 16px;
+    }
+    
+    .modal-content {
+        margin: 16px;
+    }
+}

@@ -1,0 +1,543 @@
+import WebSocket from 'ws';
+import { v4 as uuidv4 } from 'uuid';
+import { OCPPDatabaseService } from './ocpp.database.service';
+import { connectionPool } from '../../../config/db.config';
+import {
+    OCPPMessage,
+    ChargePointConnection,
+    OCPPAction,
+    OCPPStatus,
+    ChargePointStatus,
+    BootNotificationRequest,
+    BootNotificationResponse,
+    HeartbeatRequest,
+    HeartbeatResponse,
+    AuthorizeRequest,
+    AuthorizeResponse,
+    OCPPRequest,
+    OCPPResponse,
+    OCPPError,
+    MessageType
+} from '../types/ocpp.types';
+import { OCPPService } from './ocpp.service';
+
+class OCPPServer {
+    private wss: WebSocket.Server;
+    private connections: Map<string, ChargePointConnection>;
+    private heartbeatInterval: number = 300; // 5 minutes
+    private dbService: OCPPDatabaseService;
+    private ocppService: OCPPService;
+
+    // Heartbeat monitoring
+    private heartbeatCheckInterval: NodeJS.Timeout | null = null;
+    private heartbeatTimeout: number = 600000; // 10 minutos en ms (2x heartbeat interval)
+    private heartbeatCheckFrequency: number = 120000; // 2 minutos en ms
+
+    constructor(port: number = 8887) {
+        this.wss = new WebSocket.Server({ port });
+        this.connections = new Map();
+        this.dbService = new OCPPDatabaseService();
+        this.ocppService = new OCPPService();
+        this.setupWebSocketServer();
+        this.startHeartbeatMonitor();
+        console.log(`✅ Servidor OCPP iniciado en puerto ${port}`);
+    }
+
+    private setupWebSocketServer() {
+        this.wss.on('connection', async (ws: WebSocket, req: any) => {
+            // Extraer IPv4 limpia si está en formato IPv6
+            const rawIP = req.socket.remoteAddress;
+            const cleanIP = rawIP?.replace(/^::ffff:/, '') || rawIP;
+
+            console.log(`📥 Nueva conexión WebSocket entrante - IP: ${cleanIP}`);
+
+            // Extraer el ID del punto de carga de la URL
+            const chargePointId = this.extractChargePointId(req.url);
+
+            if (!chargePointId) {
+                console.error('❌ ERROR: ID de punto de carga no proporcionado - Cerrando conexión');
+                ws.close();
+                return;
+            }
+
+            console.log(`✅ ID de punto de carga extraído: ${chargePointId}`);
+
+            // Intentar registrar el cargador en el servicio OCPP
+            const registrationSuccess = await this.ocppService.registerCharger(chargePointId, ws);
+
+            if (!registrationSuccess) {
+                console.error(`❌ No se pudo registrar el cargador ${chargePointId} - No existe en la base de datos`);
+                return; // La conexión ya fue cerrada por registerCharger
+            }
+
+            // Solo registrar la conexión si el registro en el servicio fue exitoso
+            this.connections.set(chargePointId, {
+                wsConnection: ws,
+                chargePointId,
+                lastHeartbeat: new Date(),
+                status: ChargePointStatus.Available
+            });
+
+            console.log(`🔌 Punto de carga CONECTADO: ${chargePointId}`);
+
+            // Configurar handlers
+            ws.on('message', async (message: string) => {
+                try {
+                    const text = message.toString().trim();
+                    // Quick sanity check: OCPP messages are JSON arrays, so must start with '['
+                    if (!text || text[0] !== '[') {
+                        return;
+                    }
+
+                    const parsed = JSON.parse(text) as [MessageType, ...any[]];
+                    await this.handleOCPPMessage(ws, chargePointId, parsed);
+                } catch (error) {
+                    console.error('❌ Error procesando mensaje OCPP:', (error instanceof Error) ? error.message : String(error));
+                    try {
+                        this.sendError(ws, "MessageFormatError", "Invalid message format");
+                    } catch (sendErr) {
+                        // Ignorar error de envío
+                    }
+                }
+            });
+
+            ws.on('close', (code, reason) => {
+                console.log(`❌ Punto de carga DESCONECTADO: ${chargePointId}`);
+                this.connections.delete(chargePointId);
+
+                // Notificar al servicio OCPP que el cargador se desconectó
+                this.ocppService.unregisterCharger(chargePointId);
+            });
+
+            ws.on('error', (error) => {
+                console.error(`💥 Error en conexión ${chargePointId}:`, error.message);
+                this.connections.delete(chargePointId);
+            });
+        });
+    }
+
+    private extractChargePointId(url: string): string | null {
+        const match = url.match(/\/ocpp\/([^/]+)$/);
+        return match ? match[1] : null;
+    }
+
+    private async handleOCPPMessage(
+        ws: WebSocket,
+        chargePointId: string,
+        message: [MessageType, ...any[]]
+    ) {
+        const messageTypeId = message[0] as MessageType;
+
+        if (typeof messageTypeId !== 'number' || ![2, 3, 4].includes(messageTypeId)) {
+            this.sendError(ws, "MessageTypeError", "Invalid message type");
+            return;
+        }
+
+        if (messageTypeId === 2) { // Request
+            const [, uniqueId, action, payload] = message as OCPPRequest;
+
+            if (typeof action !== 'string' || typeof uniqueId !== 'string') {
+                this.sendError(ws, "MessageFormatError", "Invalid message format");
+                return;
+            }
+
+            await this.handleRequest(ws, chargePointId, uniqueId, action, payload);
+        } else if (messageTypeId === 3) { // Response
+            // Manejar respuestas si es necesario
+        } else if (messageTypeId === 4) { // Error
+            const [, uniqueId, errorCode, errorDescription, errorDetails] = message as OCPPError;
+            console.error(`❗ Error recibido de ${chargePointId}:`, { errorCode, errorDescription });
+        }
+    }
+
+    private async handleRequest(
+        ws: WebSocket,
+        chargePointId: string,
+        uniqueId: string,
+        action: string,
+        payload: any
+    ) {
+        // Log solo para acciones importantes, no Heartbeat
+        if (action !== OCPPAction.Heartbeat) {
+            console.log(`⚙️ Procesando solicitud ${action} de ${chargePointId}`);
+        }
+
+        switch (action) {
+            case OCPPAction.BootNotification:
+                await this.handleBootNotification(ws, chargePointId, uniqueId, payload);
+                break;
+            case OCPPAction.Heartbeat:
+                await this.handleHeartbeat(ws, chargePointId, uniqueId);
+                break;
+            case OCPPAction.StatusNotification:
+                await this.handleStatusNotification(ws, chargePointId, uniqueId, payload);
+                break;
+            case OCPPAction.Authorize:
+                await this.handleAuthorize(ws, uniqueId, payload);
+                break;
+            case OCPPAction.StartTransaction:
+                await this.handleStartTransaction(ws, chargePointId, uniqueId, payload);
+                break;
+            case OCPPAction.StopTransaction:
+                await this.handleStopTransaction(ws, chargePointId, uniqueId, payload);
+                break;
+            case OCPPAction.ChangeConfiguration:
+                this.sendResponse(ws, uniqueId, { status: "Accepted" });
+                break;
+            case OCPPAction.Reset:
+                this.sendResponse(ws, uniqueId, { status: "Accepted" });
+                break;
+            default:
+                console.warn(`⚠️ Acción no implementada: ${action} de ${chargePointId}`);
+                this.sendError(ws, "NotImplemented", `Action ${action} not implemented`);
+        }
+    }
+
+    private async handleBootNotification(
+        ws: WebSocket,
+        chargePointId: string,
+        uniqueId: string,
+        payload: BootNotificationRequest
+    ) {
+        console.log(`📥 BootNotification de ${chargePointId}`);
+
+        try {
+            await this.dbService.registerBootNotification(chargePointId, payload);
+
+            const response: BootNotificationResponse = {
+                status: OCPPStatus.Accepted,
+                currentTime: new Date().toISOString(),
+                interval: this.heartbeatInterval
+            };
+
+            this.sendResponse(ws, uniqueId, response);
+        } catch (error) {
+            console.error(`❌ Error procesando Boot Notification para ${chargePointId}:`, error);
+            this.sendError(ws, "InternalError", "Error processing boot notification");
+        }
+    }
+
+    private async handleStatusNotification(
+        ws: WebSocket,
+        chargePointId: string,
+        uniqueId: string,
+        payload: {
+            connectorId: number;
+            errorCode: string;
+            status: string;
+            timestamp: string;
+            info?: string;
+            vendorId?: string;
+            vendorErrorCode?: string;
+        }
+    ) {
+        try {
+            // CONVERTIR FORMATO DE FECHA para MySQL
+            const mysqlTimestamp = payload.timestamp.replace('Z', '').replace('T', ' ');
+
+            // Mapear estado OCPP a estado de la App
+            let appStatus = 'standby';
+            const s = payload.status.toLowerCase();
+
+            if (s === 'charging' || s === 'suspendedev' || s === 'suspendedevse') {
+                appStatus = 'charging';
+            } else if (s === 'faulted' || s === 'unavailable') {
+                appStatus = 'error';
+            } else if (s === 'reserved') {
+                appStatus = 'locked';
+            }
+            // Available, Finishing, Preparing -> standby
+
+            // Actualizar el estado en la base de datos
+            await connectionPool.query(
+                `UPDATE chargers 
+                 SET device_status = ?, 
+                     status = ?,
+                     last_status_notification = ?,
+                     last_error_code = ?,
+                     last_updated = NOW()
+                 WHERE serial_number = ?`,
+                [payload.status, appStatus, mysqlTimestamp, payload.errorCode, chargePointId]
+            );
+
+            // Actualizar estado en memoria
+            const connection = this.connections.get(chargePointId);
+            if (connection) {
+                connection.status = payload.status as ChargePointStatus;
+            }
+
+            // Enviar respuesta de confirmación
+            this.sendResponse(ws, uniqueId, {});
+        } catch (error) {
+            console.error(`❌ Error actualizando status para ${chargePointId}:`, error);
+            this.sendResponse(ws, uniqueId, {});
+        }
+    }
+
+    private async handleHeartbeat(
+        ws: WebSocket,
+        chargePointId: string,
+        uniqueId: string
+    ) {
+        // Sin logs para heartbeat
+        const connection = this.connections.get(chargePointId);
+        if (connection) {
+            connection.lastHeartbeat = new Date();
+        }
+
+        const response: HeartbeatResponse = {
+            currentTime: new Date().toISOString()
+        };
+
+        this.sendResponse(ws, uniqueId, response);
+    }
+
+    private async handleAuthorize(
+        ws: WebSocket,
+        uniqueId: string,
+        payload: AuthorizeRequest
+    ) {
+        console.log(`🔐 Authorize para: ${payload.idTag}`);
+
+        const response: AuthorizeResponse = {
+            idTagInfo: {
+                status: OCPPStatus.Accepted,
+                expiryDate: new Date(Date.now() + 86400000).toISOString() // 24 horas
+            }
+        };
+
+        this.sendResponse(ws, uniqueId, response);
+    }
+
+    private sendResponse(ws: WebSocket, uniqueId: string, payload: any) {
+        const response: OCPPMessage = {
+            messageTypeId: 3,
+            uniqueId,
+            payload
+        };
+
+        try {
+            const responseString = JSON.stringify([response.messageTypeId, response.uniqueId, response.payload]);
+            ws.send(responseString);
+        } catch (error) {
+            console.error(`❌ Error enviando respuesta - ID: ${uniqueId}:`, error);
+        }
+    }
+
+    private sendError(ws: WebSocket, errorCode: string, errorDescription: string) {
+        console.log(`🚫 Error enviado: ${errorCode} - ${errorDescription}`);
+        const errorResponse: OCPPMessage = {
+            messageTypeId: 4,
+            uniqueId: uuidv4(),
+            payload: {
+                errorCode,
+                errorDescription
+            }
+        };
+
+        try {
+            const errorString = JSON.stringify([
+                errorResponse.messageTypeId,
+                errorResponse.uniqueId,
+                errorCode,
+                errorDescription,
+                {}
+            ]);
+            ws.send(errorString);
+        } catch (error) {
+            console.error(`❌ Error enviando mensaje de error:`, error);
+        }
+    }
+
+    public getChargePointsStatus(): { [key: string]: ChargePointStatus } {
+        const status: { [key: string]: ChargePointStatus } = {};
+        this.connections.forEach((connection, chargePointId) => {
+            status[chargePointId] = connection.status;
+        });
+        return status;
+    }
+
+    private async handleStopTransaction(
+        ws: WebSocket,
+        chargePointId: string,
+        uniqueId: string,
+        payload: {
+            transactionId: number;
+            timestamp: string;
+            meterStop: number;
+            reason?: string;
+            idTag?: string;
+            transactionData?: any[];
+        }
+    ) {
+        console.log(`🛑 StopTransaction de ${chargePointId}`, payload);
+
+        try {
+            // CONVERTIR FORMATO DE FECHA para MySQL
+            const mysqlTimestamp = payload.timestamp.replace('Z', '').replace('T', ' ');
+
+            // Actualizar la transacción en la base de datos
+            await connectionPool.query(
+                `UPDATE transactions 
+                 SET end_timestamp = ?, meter_stop = ?, status = 'completed'
+                 WHERE id = ?`,
+                [payload.timestamp, payload.meterStop, payload.transactionId]
+            );
+
+            // Actualizar estado del cargador a Available
+            await connectionPool.query(
+                'UPDATE chargers SET device_status = ? WHERE serial_number = ?',
+                ['Available', chargePointId]
+            );
+
+            // Actualizar estado en memoria
+            const connection = this.connections.get(chargePointId);
+            if (connection) {
+                connection.status = ChargePointStatus.Available;
+            }
+
+            const response = {
+                idTagInfo: {
+                    status: OCPPStatus.Accepted
+                }
+            };
+
+            this.sendResponse(ws, uniqueId, response);
+
+        } catch (error) {
+            console.error(`❌ Error procesando StopTransaction para ${chargePointId}:`, error);
+            this.sendError(ws, "InternalError", "Error stopping transaction");
+        }
+    }
+
+    private async handleStartTransaction(
+        ws: WebSocket,
+        chargePointId: string,
+        uniqueId: string,
+        payload: {
+            connectorId: number;
+            idTag: string;
+            meterStart: number;
+            timestamp: string;
+            reservationId?: number;
+        }
+    ) {
+        console.log(`🔌 StartTransaction de ${chargePointId}`, payload);
+
+        try {
+            // CONVERTIR FORMATO DE FECHA para MySQL
+            const mysqlTimestamp = payload.timestamp.replace('Z', '').replace('T', ' ');
+
+            // Buscar el charger_id en la base de datos
+            const [chargerRows] = await connectionPool.query(
+                'SELECT id FROM chargers WHERE serial_number = ?',
+                [chargePointId]
+            ) as any[];
+
+            if (chargerRows.length === 0) {
+                console.error(`❌ Cargador ${chargePointId} no encontrado en BD`);
+                this.sendError(ws, "InternalError", "Charger not found in database");
+                return;
+            }
+
+            const chargerId = chargerRows[0].id;
+
+            // Insertar la transacción en la base de datos
+            const [result] = await connectionPool.query(
+                `INSERT INTO transactions 
+                 (charger_id, connector_id, id_tag, meter_start, start_timestamp, status) 
+                 VALUES (?, ?, ?, ?, ?, 'active')`,
+                [chargerId, payload.connectorId, payload.idTag, payload.meterStart, mysqlTimestamp]
+            );
+
+            const transactionId = (result as any).insertId;
+
+            // Actualizar estado del cargador
+            await connectionPool.query(
+                'UPDATE chargers SET device_status = ? WHERE serial_number = ?',
+                ['Charging', chargePointId]
+            );
+
+            // Actualizar estado en memoria
+            const connection = this.connections.get(chargePointId);
+            if (connection) {
+                connection.status = ChargePointStatus.Charging;
+            }
+
+            // Enviar respuesta exitosa
+            const response = {
+                transactionId: transactionId,
+                idTagInfo: {
+                    status: OCPPStatus.Accepted,
+                    expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+                }
+            };
+
+            this.sendResponse(ws, uniqueId, response);
+            console.log(`✅ StartTransaction iniciado: ${transactionId}`);
+
+        } catch (error) {
+     /* que todos los cargadores conectados estén enviando heartbeats
+                */
+    private startHeartbeatMonitor() {
+        console.log(`🩺 Iniciando monitor de heartbeat - Chequeo cada ${this.heartbeatCheckFrequency / 1000}s, timeout: ${this.heartbeatTimeout / 1000}s`);
+
+        this.heartbeatCheckInterval = setInterval(() => {
+            this.checkHeartbeatTimeouts();
+        }, this.heartbeatCheckFrequency);
+    }
+
+    /**
+     * Verifica cada conexión activa y detecta cargadores que no han
+     * enviado heartbeat en el tiempo esperado
+     */
+    private checkHeartbeatTimeouts() {
+        const now = Date.now();
+        const connectionsToCheck = Array.from(this.connections.entries());
+
+        if (connectionsToCheck.length === 0) {
+            return; // No hay conexiones que revisar
+        }
+
+        console.log(`🔍 [Heartbeat Monitor] Revisando ${connectionsToCheck.length} conexiones activas...`);
+
+        for (const [chargePointId, connection] of connectionsToCheck) {
+            const timeSinceLastHeartbeat = now - connection.lastHeartbeat.getTime();
+
+            if (timeSinceLastHeartbeat > this.heartbeatTimeout) {
+                const minutesAgo = Math.floor(timeSinceLastHeartbeat / 60000);
+                console.log(`⏰ [Heartbeat Monitor] Cargador ${chargePointId} sin heartbeat hace ${minutesAgo} min - TIMEOUT`);
+
+                // Cerrar la conexión por timeout
+                try {
+                    console.log(`🔌 Cerrando conexión por timeout: ${chargePointId}`);
+                    connection.wsConnection.close(4001, 'Heartbeat timeout');
+
+                    // Limpiar de las conexiones locales
+                    this.connections.delete(chargePointId);
+
+                    // Notificar al servicio OCPP para actualizar estado en BD
+                    this.ocppService.unregisterCharger(chargePointId);
+                } catch (error) {
+                    console.error(`❌ Error cerrando conexión timeout para ${chargePointId}:`, error);
+                    // Aun con error, intentar limpiar
+                    this.connections.delete(chargePointId);
+                    this.ocppService.unregisterCharger(chargePointId);
+                }
+            }
+        }
+    }
+
+    /**
+     * Detiene el monitor de heartbeat (para cleanup al cerrar el servidor)
+     */
+    private stopHeartbeatMonitor() {
+        if (this.heartbeatCheckInterval) {
+            console.log('🛑 Deteniendo monitor de heartbeat');
+            clearInterval(this.heartbeatCheckInterval);
+            this.heartbeatCheckInterval = null;
+        }
+    }
+}
+
+export default OCPPServer;

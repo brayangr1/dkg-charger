@@ -1,0 +1,274 @@
+/* ChargerSettingsScreen.css - Premium Design Configuration */
+
+.charger-settings-enhanced {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.settings-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.settings-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #2d3436 0%, #000000 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+/* Base Card Style */
+.settings-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    margin-bottom: 25px;
+    transition: transform 0.2s ease;
+}
+
+.settings-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+}
+
+.settings-card h2 {
+    font-size: 20px;
+    color: #2d3436;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Information Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.info-item .label {
+    display: block;
+    color: #636e72;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.info-item .value {
+    display: block;
+    color: #2d3436;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* WiFi Section */
+.wifi-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.connected-wifi-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #bbdefb;
+    color: #1976d2;
+}
+
+.wifi-icon {
+    font-size: 24px;
+}
+
+.connected-label {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.connected-ssid {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.pending-config-warning {
+    background: #fff3e0;
+    border: 1px solid #ffe0b2;
+    color: #e65100;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.wifi-inputs {
+    display: grid;
+    gap: 20px;
+}
+
+/* Custom Input Styles (Overrides or Direct Use) */
+.custom-input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #2d3436;
+}
+
+.custom-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.custom-input:focus {
+    border-color: #0984e3;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+}
+
+/* Range Slider */
+.range-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 16px;
+    margin-top: 15px;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #dfe6e9;
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #0984e3;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(9, 132, 227, 0.4);
+    transition: transform 0.1s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* Action Buttons */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.btn-settings {
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.btn-secondary {
+    background: #f1f2f6;
+    color: #2d3436;
+}
+
+.btn-secondary:hover {
+    background: #dfe4ea;
+    transform: translateY(-2px);
+}
+
+.btn-danger-soft {
+    background: #fff5f5;
+    color: #c0392b;
+    border: 1px solid #fadbd8;
+}
+
+.btn-danger-soft:hover {
+    background: #fee2e2;
+}
+
+.btn-danger-solid {
+    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(214, 48, 49, 0.2);
+}
+
+.btn-danger-solid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(214, 48, 49, 0.3);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #0984e3 0%, #00cec9 100%);
+    color: white;
+    width: 100%;
+    padding: 18px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(9, 132, 227, 0.3);
+}
+
+.btn-save:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(9, 132, 227, 0.4);
+}
+
+.btn-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.warning-text {
+    background: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

@@ -1,0 +1,176 @@
+/* ============================
+   PANEL GENERAL
+============================ */
+.history-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ============================
+   BOTÓN VOLVER
+============================ */
+.back-button {
+    background: #ffffff;
+    border: 1px solid #dcdcdc;
+    color: #114455;
+    border-radius: 10px;
+    padding: 0.6rem 1.4rem;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.back-button:hover {
+    background: #114455;
+    color: white;
+    border-color: #114455;
+}
+
+/* ============================
+   FILTROS (Semana / Mes / Año)
+============================ */
+.btn-range {
+    padding: 0.75rem 1.5rem;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.btn-active {
+    background: #114455 !important;
+    color: white !important;
+    border: 2px solid #114455 !important;
+    box-shadow: 0 4px 12px rgba(17,68,85,0.25);
+}
+
+.btn-inactive {
+    background: #f8f8f8;
+    color: #114455;
+    border: 2px solid #d9d9d9;
+}
+
+.btn-inactive:hover {
+    background: #eef3f5;
+}
+
+/* ============================
+   TARJETAS DE ESTADÍSTICAS
+============================ */
+.stat-card {
+    padding: 1.6rem;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.05);
+    transition: 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.07);
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #7d8a92;
+    margin-bottom: 0.4rem;
+}
+
+.stat-value {
+    font-size: 34px;
+    font-weight: 700;
+    color: #114455;
+}
+
+/* ============================
+   GRÁFICO
+============================ */
+.chart-container {
+    padding: 1.8rem;
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #e9e9e9;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.05);
+}
+
+/* ============================
+   LISTA DE SESIONES
+============================ */
+.session-list {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 12px;
+    border: 1px solid #e6e6e6;
+}
+
+.session-item {
+    padding: 1.4rem;
+    border-bottom: 1px solid #f0f0f0;
+    background: white;
+    transition: 0.2s ease;
+}
+
+.session-item:nth-child(even) {
+    background: #fafcfc;
+}
+
+.session-item:hover {
+    background: #f1f6f7;
+}
+
+/* Fecha */
+.session-date {
+    font-weight: 600;
+    font-size: 17px;
+    color: #114455;
+}
+
+/* Hora */
+.session-time {
+    font-size: 14px;
+    color: #687e84;
+}
+
+/* kWh destacado */
+.session-energy {
+    font-size: 20px;
+    font-weight: 700;
+    color: #114455;
+}
+
+/* Detalles */
+.session-details {
+    display: flex;
+    gap: 2rem;
+    font-size: 14px;
+    margin-top: 0.6rem;
+    color: #6a7a7f;
+}
+
+/* ============================
+   SPINNER
+============================ */
+.spinner {
+    border: 4px solid #e6e6e6;
+    border-top: 4px solid #114455;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

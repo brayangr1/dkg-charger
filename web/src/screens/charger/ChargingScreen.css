@@ -1,0 +1,318 @@
+/* ChargingScreen.css - Premium Dashboard Design */
+
+:root {
+    --charging-accent: #00d2ff;
+    --charging-success: #4caf50;
+    --charging-danger: #ff4757;
+    --panel-bg: rgba(255, 255, 255, 0.05);
+    /* Default for dark, override for light if possible or use common card color */
+    /* On web, we might not have a clear theme switch in CSS without a parent class. 
+       I will use a neutral 'card' look that works on the white background user requested. */
+    --card-bg-light: #f5f6fa;
+    --text-primary-light: #2d3436;
+    --text-secondary-light: #636e72;
+}
+
+.charging-screen {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    /* Removed forced color to inherit from parent/theme */
+}
+
+.charging-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.charging-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: inherit;
+    /* Adapt to theme */
+    margin: 0;
+}
+
+/* Dashboard Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+
+@media (max-width: 968px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Status Panel (Left/Main) */
+.status-panel {
+    background: var(--card-bg, #ffffff);
+    /* Default white if not set */
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+}
+
+/* For Dark Mode support if parent has .dark-theme or similar, 
+   but user asked for 'White' specifically as base. 
+   I will assume the parent layout handles the main background 
+   and this panel sits on top. */
+
+.charger-model-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #636e72;
+}
+
+.status-ring-container {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.status-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 15px solid rgba(0, 0, 0, 0.05);
+    /* Darker track for light bg */
+}
+
+.status-ring.active {
+    border-top-color: var(--charging-accent);
+    border-right-color: var(--charging-accent);
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+    animation: spin 3s linear infinite;
+}
+
+.status-ring.error {
+    border-color: var(--charging-danger);
+}
+
+.status-ring.completed {
+    border-color: var(--charging-success);
+}
+
+.status-content {
+    text-align: center;
+    z-index: 2;
+}
+
+.status-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+    display: block;
+    color: #2d3436;
+    /* Dark text */
+}
+
+.status-label {
+    font-size: 18px;
+    color: #636e72;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-value-large {
+    font-size: 42px;
+    font-weight: 800;
+    margin: 10px 0;
+    color: #2d3436;
+    /* Dark text */
+    font-family: 'Space Mono', monospace;
+    /* If available, else generic monospace */
+}
+
+/* Metrics Grid (Bottom of Main Panel) */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+    margin-top: 30px;
+}
+
+@media (max-width: 600px) {
+    .metrics-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.metric-item {
+    background: #f1f2f6;
+    border-radius: 16px;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.metric-item:hover {
+    transform: translateY(-2px);
+    background: #dfe4ea;
+}
+
+.metric-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.metric-title {
+    font-size: 12px;
+    color: #636e72;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.metric-data {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d3436;
+}
+
+/* Control Panel (Right Side) */
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.info-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #2d3436;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 10px;
+}
+
+.cost-display {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.cost-amount {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--charging-success);
+}
+
+.cost-label {
+    color: #636e72;
+    font-size: 14px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-start,
+.btn-stop {
+    padding: 18px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-start {
+    background: var(--charging-success);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.btn-start:hover:not(:disabled) {
+    background: #43a047;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.btn-stop {
+    background: var(--charging-danger);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+.btn-stop:hover:not(:disabled) {
+    background: #e04050;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
+}
+
+.btn-start:disabled,
+.btn-stop:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Animations */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+}
+
+.pulse-effect {
+    animation: pulse-ring 2s infinite ease-in-out;
+}
